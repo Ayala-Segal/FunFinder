@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   # -------------------------
@@ -15,10 +14,15 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./init-db:/docker-entrypoint-initdb.d
+      # הרצת קובץ יצירת הטבלאות ישירות מתוך תיקיית script
+      - ./script/create_tables.sql:/docker-entrypoint-initdb.d/1-create_tables.sql
+      
+      # מיפוי שאר התיקיות שציינת (לשימוש עתידי בסקריפטים)
       - ./DataImportFiles:/data
       - ./MockarooFiles:/mockaroo
-      - postgres_data:/var/lib/postgresql
+      
+      # שמירה קבועה של הנתונים בנתיב הנכון
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - zoo_network
 
@@ -45,8 +49,8 @@ services:
 # Volumes
 # -------------------------
 volumes:
-  postgres_data: {}
-  pgadmin_data: {}
+  postgres_data:
+  pgadmin_data:
 
 # -------------------------
 # Networks
