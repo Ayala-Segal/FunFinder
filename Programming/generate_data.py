@@ -3,23 +3,56 @@ from psycopg2 import extras
 from faker import Faker
 import csv
 import os
-
 from dotenv import load_dotenv
-load_dotenv("../.env")# --- הגדרות חיבור ---
-print(f"DEBUG: Connecting as user: {os.getenv('DB_USER_SECRET')}")
-DB_PARAMS = {
-    "host": "127.0.0.1",
-    "database": os.getenv("DB_NAME_SECRET"),
-    "user": os.getenv("DB_USER_SECRET"), 
-    "password": os.getenv("DB_PASSWORD_SECRET"), 
-    "port": "5432"
-}
 
+# טוען .env (בלי נתיב קשיח)
+load_dotenv("../.env")
+
+# DB_PARAMS = {
+#     "host": 'localhost',
+#     "database": os.getenv('DB_NAME_SECRET','admin'),
+#     "user": os.getenv('DB_USER_SECRET','admin'), 
+#     "password": os.getenv('DB_PASSWORD_SECRET','routes_db'), 
+#     "port": "5432"
+# }
+
+# def get_db_connection():
+#     return psycopg2.connect(**DB_PARAMS)
+
+# קריאת משתנים
+DB_USER = os.getenv("DB_USER_SECRET")
+DB_PASSWORD = os.getenv("DB_PASSWORD_SECRET")
+DB_NAME = os.getenv("DB_NAME_SECRET")
+DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
+DB_PORT = os.getenv("DB_PORT", "5432")
+
+print(f"DEBUG: Connecting as user: {os.getenv('DB_USER_SECRET')}")
+
+
+# בדיקה שהכול נטען
+if not all([DB_USER, DB_PASSWORD, DB_NAME]):
+    raise ValueError("חסרים משתני סביבה בקובץ .env")
+
+print(f"DEBUG: Connecting as user: {DB_USER}")
+
+DB_PARAMS = {
+"host": DB_HOST,
+"database": DB_NAME,
+"user": DB_USER,
+"password": DB_PASSWORD,
+"port": DB_PORT
+}
 
 fake = Faker()
 
 def get_db_connection():
-    return psycopg2.connect(**DB_PARAMS)
+    try:
+     conn = psycopg2.connect(**DB_PARAMS)
+     print("✅ התחברות הצליחה")
+     return conn
+    except Exception as e:
+      print("❌ שגיאה בחיבור:", e)
+      raise
 
 # --- פונקציה גנרית להרצה מהירה של אלפי שורות ---
 def execute_bulk_insert(query, data_list):
