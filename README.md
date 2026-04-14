@@ -10,9 +10,7 @@
   * [DSD (Data Structure Diagram)](#dsd-data-structure-diagram)
   * [SQL Scripts](#sql-scripts)
   * [Data](#data)
-  * [Backup & Environment](#backup--environment)
-* [Phase 2: Integration](#phase-2-integration)
-
+  * [Backup](#backup)
 ---
 
 ## Phase 1: Design and Build the Database
@@ -64,25 +62,29 @@ It provides a complete database solution for handling attractions, reservations,
 
 #### 🔹 CSV Files (Data Import)
 
-📂 [View DataImportFiles](https://github.com/Ayala-Segal/FunFinder/tree/7474998f733d2f590955d2af5f58084a3a5854f1/DataImportFiles)
+📂 DataImportFiles
 
-Includes:
-
-* users.csv
-* bookings.csv
-* attractions.csv
-* categories.csv
-* reviews.csv
-* gallery_images.csv
-* booking_details.csv
+* 📄 [users.csv](https://raw.githubusercontent.com/Ayala-Segal/FunFinder/7474998f733d2f590955d2af5f58084a3a5854f1/DataImportFiles/users.csv)
+* 📄 [bookings.csv](https://raw.githubusercontent.com/Ayala-Segal/FunFinder/7474998f733d2f590955d2af5f58084a3a5854f1/DataImportFiles/bookings.csv)
+* 📄 [attractions.csv](https://raw.githubusercontent.com/Ayala-Segal/FunFinder/7474998f733d2f590955d2af5f58084a3a5854f1/DataImportFiles/attractions.csv)
+* 📄 [categories.csv](https://raw.githubusercontent.com/Ayala-Segal/FunFinder/7474998f733d2f590955d2af5f58084a3a5854f1/DataImportFiles/categories.csv)
+* 📄 [reviews.csv](https://raw.githubusercontent.com/Ayala-Segal/FunFinder/7474998f733d2f590955d2af5f58084a3a5854f1/DataImportFiles/reviews.csv)
+* 📄 [gallery_images.csv](https://raw.githubusercontent.com/Ayala-Segal/FunFinder/7474998f733d2f590955d2af5f58084a3a5854f1/DataImportFiles/gallery_images.csv)
+* 📄 [booking_details.csv](https://raw.githubusercontent.com/Ayala-Segal/FunFinder/7474998f733d2f590955d2af5f58084a3a5854f1/DataImportFiles/booking_details.csv)
 
 ---
 
 #### 🔹 Mockaroo (SQL Data)
 
-📂 https://github.com/Ayala-Segal/FunFinder/tree/main/MockarooFiles
+📂 MockarooFiles
 
-Generated SQL files for all main tables.
+* 📄 [users.sql](https://raw.githubusercontent.com/Ayala-Segal/FunFinder/main/MockarooFiles/users.sql)
+* 📄 [bookings.sql](https://raw.githubusercontent.com/Ayala-Segal/FunFinder/main/MockarooFiles/bookings.sql)
+* 📄 [attractions.sql](https://raw.githubusercontent.com/Ayala-Segal/FunFinder/main/MockarooFiles/attractions.sql)
+* 📄 [categories.sql](https://raw.githubusercontent.com/Ayala-Segal/FunFinder/main/MockarooFiles/categories.sql)
+* 📄 [reviews.sql](https://raw.githubusercontent.com/Ayala-Segal/FunFinder/main/MockarooFiles/reviews.sql)
+* 📄 [gallery_images.sql](https://raw.githubusercontent.com/Ayala-Segal/FunFinder/main/MockarooFiles/gallery_images.sql)
+* 📄 [booking_details.sql](https://raw.githubusercontent.com/Ayala-Segal/FunFinder/main/MockarooFiles/booking_details.sql)
 
 ---
 
@@ -97,6 +99,6 @@ Used for generating large-scale and dynamic datasets.
 ### Backup
 
 -   backups files are kept with the date and hour of the backup:  
-????
+
 ---
 
