@@ -120,7 +120,7 @@ Shows user bookings and order history.
 
 #### 🔹 Python Data Generator
 
-📜 https://github.com/Ayala-Segal/FunFinder/blob/main/Programming/generate_data.py
+📜[generate_data.py] (https://github.com/Ayala-Segal/FunFinder/blob/main/Programming/generate_data.py)
 
 Used for generating large-scale and dynamic datasets.
 
@@ -129,6 +129,6 @@ Used for generating large-scale and dynamic datasets.
 ### Backup
 
 -   backups files are kept with the date and hour of the backup:  
-📂 [View Backups Folder](https://github.com/Ayala-Segal/FunFinder/tree/main/backups)
+📂 [View Backups Folder](https://github.com/Ayala-Segal/FunFinder/tree/main/backup)
 ---
 
