@@ -1,130 +1,137 @@
-import psycopg2
-from psycopg2 import extras
-from faker import Faker
 import csv
+from faker import Faker
+import random
 import os
-from dotenv import load_dotenv
-
-# טוען .env (בלי נתיב קשיח)
-load_dotenv("../.env")
-
-# DB_PARAMS = {
-#     "host": 'localhost',
-#     "database": os.getenv('DB_NAME_SECRET','admin'),
-#     "user": os.getenv('DB_USER_SECRET','admin'), 
-#     "password": os.getenv('DB_PASSWORD_SECRET','routes_db'), 
-#     "port": "5432"
-# }
-
-# def get_db_connection():
-#     return psycopg2.connect(**DB_PARAMS)
-
-# קריאת משתנים
-DB_USER = os.getenv("DB_USER_SECRET")
-DB_PASSWORD = os.getenv("DB_PASSWORD_SECRET")
-DB_NAME = os.getenv("DB_NAME_SECRET")
-DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
-DB_PORT = os.getenv("DB_PORT", "5432")
-
-print(f"DEBUG: Connecting as user: {os.getenv('DB_USER_SECRET')}")
-
-
-# בדיקה שהכול נטען
-if not all([DB_USER, DB_PASSWORD, DB_NAME]):
-    raise ValueError("חסרים משתני סביבה בקובץ .env")
-
-print(f"DEBUG: Connecting as user: {DB_USER}")
-
-DB_PARAMS = {
-"host": DB_HOST,
-"database": DB_NAME,
-"user": DB_USER,
-"password": DB_PASSWORD,
-"port": DB_PORT
-}
 
 fake = Faker()
 
-def get_db_connection():
-    try:
-     conn = psycopg2.connect(**DB_PARAMS)
-     print("✅ התחברות הצליחה")
-     return conn
-    except Exception as e:
-      print("❌ שגיאה בחיבור:", e)
-      raise
+# Target configuration
+TARGET_COUNT = 20000
 
-# --- פונקציה גנרית להרצה מהירה של אלפי שורות ---
-def execute_bulk_insert(query, data_list):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    try:
-        # שימוש ב-execute_batch להרצה מהירה מאוד (חשוב ל-20,000 שורות)
-        extras.execute_batch(cur, query, data_list, page_size=1000)
-        conn.commit()
-        print(f"✓ הוכנסו {len(data_list)} רשומות בהצלחה.")
-    except Exception as e:
-        print(f"✘ שגיאה: {e}")
-        conn.rollback()
-    finally:
-        cur.close()
-        conn.close()
+# Path navigation from Programming folder to DataImportFiles folder
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.normpath(os.path.join(BASE_DIR, '..', 'DataImportFiles'))
 
-# --- פונקציה לביטול/החזרת אילוצים (Constraints) ---
-def toggle_constraints(enable=True):
-    action = "ENABLE" if enable else "DISABLE"
-    tables = ["USERS", "CATEGORIES", "ATTRACTIONS", "REVIEWS", "BOOKINGS"]
-    conn = get_db_connection()
-    cur = conn.cursor()
-    for table in tables:
-        cur.execute(f"ALTER TABLE {table} {action} TRIGGER ALL;")
-    conn.commit()
-    cur.close()
-    conn.close()
-    print(f"--- כל הטריגרים הועברו למצב: {action} ---")
+def get_path(file_name):
+    return os.path.join(DATA_DIR, file_name)
 
-# --- פונקציה לקריאת CSV (מ-Mockaroo) ---
-def load_csv_data(file_path):
-    data = []
-    if not os.path.exists(file_path):
-        print(f"קובץ {file_path} לא נמצא, מדלג...")
-        return []
-    with open(file_path, mode='r', encoding='utf-8') as f:
+def get_existing_ids(file_name, id_col_index=0):
+    """Reads existing IDs from a CSV file"""
+    path = get_path(file_name)
+    ids = []
+
+    if not os.path.exists(path) or os.stat(path).st_size == 0:
+        return ids
+
+    with open(path, mode='r', encoding='utf-8') as f:
         reader = csv.reader(f)
-        next(reader) # מדלג על הכותרות
+        next(reader, None)  # Skip header row
+
         for row in reader:
-            data.append(tuple(row))
-    return data
+            if row:
+                try:
+                    ids.append(int(row[id_col_index]))
+                except ValueError:
+                    continue
 
-# --- הרצה מרכזית ---
+    return ids
+
+
+def fill_users():
+    path = get_path('users.csv')
+    existing_ids = get_existing_ids('users.csv')
+    current_count = len(existing_ids)
+
+    # Stop if target is already reached
+    if current_count >= TARGET_COUNT:
+        print(f"✅ USERS table already contains {current_count} records.")
+        return existing_ids
+
+    needed = TARGET_COUNT - current_count
+    last_id = max(existing_ids) if existing_ids else 0
+
+    print(f"🔄 Adding {needed} users to: {path}")
+
+    file_exists = os.path.exists(path)
+    with open(path, mode='a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+
+        # Write header if file is new or empty
+        if not file_exists or os.stat(path).st_size == 0:
+            writer.writerow(['user_id', 'name', 'email', 'avatar_url', 'created_at', 'password_hash'])
+
+        for i in range(last_id + 1, last_id + needed + 1):
+            writer.writerow([
+                i,
+                fake.name(),
+                fake.unique.email(),
+                fake.image_url(),
+                fake.date_time_this_year(),
+                fake.sha256()
+            ])
+            existing_ids.append(i)
+
+    return existing_ids
+
+
+def fill_attractions():
+    path = get_path('attractions.csv')
+
+    # Load existing category IDs for foreign key consistency
+    cat_ids = get_existing_ids('categories.csv')
+
+    if not cat_ids:
+        print("⚠️ No categories found. Using default range 1-10.")
+        cat_ids = list(range(1, 11))
+
+    existing_ids = get_existing_ids('attractions.csv')
+    current_count = len(existing_ids)
+
+    # Stop if target is already reached
+    if current_count >= TARGET_COUNT:
+        print(f"✅ ATTRACTIONS table already contains {current_count} records.")
+        return
+
+    needed = TARGET_COUNT - current_count
+    last_id = max(existing_ids) if existing_ids else 0
+
+    print(f"🔄 Adding {needed} attractions to: {path}")
+
+    file_exists = os.path.exists(path)
+    with open(path, mode='a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+
+        # Write header if file is new or empty
+        if not file_exists or os.stat(path).st_size == 0:
+            writer.writerow([
+                'attraction_id', 'name', 'short_description', 'full_description',
+                'location', 'price', 'difficulty_level', 'duration',
+                'target_audience', 'avg_rating', 'review_count',
+                'main_image_url', 'category_id'
+            ])
+
+        for i in range(last_id + 1, last_id + needed + 1):
+            writer.writerow([
+                i,
+                fake.company()[:150],
+                fake.sentence()[:255],
+                fake.text(max_nb_chars=500),
+                fake.city(),
+                round(random.uniform(10, 500), 2),
+                round(random.uniform(1, 5), 1),
+                random.randint(30, 300),
+                random.choice(['Families', 'Groups', 'Individuals']),
+                round(random.uniform(1, 5), 2),
+                random.randint(0, 1000),
+                fake.image_url(),
+                random.choice(cat_ids)
+            ])
+
+
 if __name__ == "__main__":
-    # 1. ביטול בדיקות קשרים כדי ששום דבר לא ייתקע
-    toggle_constraints(enable=False)
-
-    # 2. אכלוס קטגוריות (500 רשומות - דוגמה ליצירה אוטומטית)
-    print("מכניס קטגוריות...")
-    cat_query = "INSERT INTO CATEGORIES (category_id, name, icon_identifier) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING"
-    cat_data = [(i, fake.word(), fake.slug()) for i in range(1002, 1502)]
-    execute_bulk_insert(cat_query, cat_data)
-
-    # 3. אכלוס משתמשים (1,000 רשומות)
-    print("מכניס 1,000 משתמשים...")
-    user_query = "INSERT INTO USERS (user_id, name, email, avatar_url, created_at, password_hash) VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING"
-    user_data = [(i, fake.name(), fake.unique.email(), fake.image_url(), fake.date_this_year(), fake.sha256()) for i in range(2000, 3000)]
-    execute_bulk_insert(user_query, user_data)
-
-    # 4. אכלוס אטרקציות (קריאה מקובץ CSV של Mockaroo)
-    print("מכניס אטרקציות מתוך CSV...")
-    attr_query = """INSERT INTO ATTRACTIONS (
-    attraction_id, name, short_description, full_description,
-    location, price, difficulty_level, duration,
-    target_audience, avg_rating, review_count,
-    main_image_url, category_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING"""
-    # ודאי שהקובץ נמצא באותה תיקייה של הסקריפט
-    attr_csv_data = load_csv_data('attractions.csv') 
-    if attr_csv_data:
-        execute_bulk_insert(attr_query, attr_csv_data)
-
-    # 5. החזרת בדיקות קשרים
-    toggle_constraints(enable=True)
-    print("--- הסקריפט הסתיים בהצלחה! ---")
+    if not os.path.exists(DATA_DIR):
+        print(f"❌ Error: Target folder does not exist: {DATA_DIR}")
+    else:
+        fill_users()
+        fill_attractions()
+        print("\n✨ Data generation process completed successfully!")
