@@ -36,7 +36,12 @@ It provides a complete database solution for handling attractions, reservations,
 * Businesses can present and manage their attractions
 
 ---
+## 🚀 AI Studio Preview
 
+📌 View the system prototype and AI design:
+[Open AI Studio Project](https://ai.studio/apps/5c3de8b2-1857-4c0e-964f-efd5e41495a2)
+
+---
 ## 🖼️ System Overview (Application View)
 
 This section presents the main screens of the system and demonstrates how users interact with the application in practice.
