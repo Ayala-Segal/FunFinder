@@ -4,7 +4,7 @@ services:
   # PostgreSQL Database
   # -------------------------
   db:
-    image: postgres:latest
+    image: postgres:16
     container_name: PostgreSQL_DB
     restart: always
     environment:
@@ -18,8 +18,8 @@ services:
       - ./script/create_tables.sql:/docker-entrypoint-initdb.d/1-create_tables.sql
       
       # מיפוי שאר התיקיות שציינת (לשימוש עתידי בסקריפטים)
-      - ./DataImportFiles:/data
-      - ./MockarooFiles:/mockaroo
+      # - ./DataImportFiles:/data
+      # - ./MockarooFiles:/mockaroo
       
       # שמירה קבועה של הנתונים בנתיב הנכון
       - postgres_data:/var/lib/postgresql/data
