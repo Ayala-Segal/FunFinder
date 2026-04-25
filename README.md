@@ -36,6 +36,41 @@ It provides a complete database solution for handling attractions, reservations,
 * Businesses can present and manage their attractions
 
 ---
+## 🚀 AI Studio Preview
+
+📌 View the system prototype and AI design:
+[Open AI Studio Project](https://ai.studio/apps/5c3de8b2-1857-4c0e-964f-efd5e41495a2)
+
+---
+## 🖼️ System Overview (Application View)
+
+This section presents the main screens of the system and demonstrates how users interact with the application in practice.
+
+### 🏠 Home Page
+The main landing page that provides general navigation and overview of attractions.
+![Home 1](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/home1.png)
+![Home 2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/home2.png)
+![Home 3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/home3.png)
+
+---
+
+### 🎟️ Attractions Page
+Displays all available attractions with details and filtering options.
+![Attractions](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/attractions.png)
+
+---
+
+### 🔐 Login Page
+User authentication screen for system access.
+![Login](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/connection.png)
+
+---
+
+### 🛒 Orders Page
+Shows user bookings and order history.
+![Orders](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/order.png)
+
+---
 
 ### ERD (Entity-Relationship Diagram)
 
@@ -90,7 +125,7 @@ It provides a complete database solution for handling attractions, reservations,
 
 #### 🔹 Python Data Generator
 
-📜 https://github.com/Ayala-Segal/FunFinder/blob/main/Programming/generate_data.py
+📜[generate_data.py](https://github.com/Ayala-Segal/FunFinder/blob/main/Programming/generate_data.py)
 
 Used for generating large-scale and dynamic datasets.
 
@@ -99,6 +134,6 @@ Used for generating large-scale and dynamic datasets.
 ### Backup
 
 -   backups files are kept with the date and hour of the backup:  
-
+📂 [View Backups Folder](https://github.com/Ayala-Segal/FunFinder/tree/main/backup)
 ---
 
