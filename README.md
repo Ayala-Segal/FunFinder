@@ -312,6 +312,7 @@ HAVING COUNT(*) = (
     ) sub
 );
 ![Query 4A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query4A_SELECT.png)
+
 📸 Query B (ALL version):
 -- Form B:
 SELECT
@@ -327,7 +328,7 @@ HAVING COUNT(*) >= ALL (
     JOIN ATTRACTIONS a2 ON bd2.attraction_id = a2.attraction_id
     WHERE a2.category_id = 5
     GROUP BY bd2.attraction_id
-); 
+);
 ![Query 4B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query4B_SELECT.png)
 
 
@@ -350,8 +351,7 @@ WHERE b.user_id = $1
 GROUP BY EXTRACT(YEAR FROM b.booking_date)
 ORDER BY booking_year DESC;
 
-📸 Query: ![Query 5](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query5_SELECT.png)
-📸 Result: ![Result5](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Result5.png)
+📸 Query: ![Query 5](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/SEL5.png)
 
 🔹 Query 6 – Most popular categories:
 -- Purpose: Show most popular categories based on bookings
@@ -367,8 +367,7 @@ GROUP BY c.name
 ORDER BY popularity DESC;
 
 
-📸 Query: ![Query 6](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query6_SELECT.png)
-📸 Result: ![Query 1B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Result6.png)
+📸 Query: ![Query 6](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/SEL6.png)
 
 🔹 Query 7 – Full attraction details with images:
 -- Purpose: Show full attraction details with images (UI detail page)
@@ -382,8 +381,8 @@ LEFT JOIN GALLERY_IMAGES g ON a.attraction_id = g.attraction_id  -- Allow missin
 WHERE a.attraction_id = 10;
 
 
-📸 Query: ![Query 7](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query7_SELECT.png)
-📸 Result: ![Result7](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Result7.png)
+📸 Query: ![Query 7](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/SEL7.png)
+
 
 🔹 Query 8 – Attractions not visited in last 6 months:
 -- Purpose: Show attractions the user has NOT visited in the last 6 months
@@ -409,8 +408,8 @@ WHERE NOT EXISTS (
 )
 ORDER BY a.avg_rating DESC, a.price ASC;
 
-📸 Query: ![Query 8](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query8_SELECT.png)
-📸 Result: ![Result8](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Result8.png)
+📸 Query: ![Query 8](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/SEL8.png)
+
 
 🔹 Query 9 – Attractions not visited in last 6 months
 -- Purpose: Return the 4 most booked attractions in the last 2 months
@@ -432,8 +431,8 @@ GROUP BY
     a.price
 ORDER BY total_bookings DESC
 LIMIT 4;
-📸 Query: ![Query 9](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query9_SELECT.png)
-📸 Result: ![Result8](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Result8.png)
+📸 Query: ![Query 9](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/SEL9.png)
+
 
 🗑 DELETE Queries
 🔹 Delete old reviews (5+ years):
@@ -444,13 +443,11 @@ DELETE FROM REVIEWS r
 WHERE r.review_id IN (
     SELECT r2.review_id
     FROM REVIEWS r2
-    WHERE EXTRACT(YEAR FROM r2.created_at) <= EXTRACT(YEAR FROM CURRENT_DATE) - 5
+    WHERE EXTRACT(YEAR FROM r2.created_at) <= EXTRACT(YEAR FROM CURRENT_DATE) - 3
     AND r2.user_id = $1
 );
 
-📸 Before: ![Query DELETE1A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/QueryDELETE1A.png)
-📸 After: ![Query DELETE1B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/QueryDELETE1B.png)
-📸 Execution: ![ResDELETE1](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/ResDELETE1.png)
+📸 Before: ![Query DELETE1](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/DEL1.png)
 
 🔹 Delete inactive attractions (no bookings in last year):
 --Query 2
@@ -465,9 +462,8 @@ WHERE NOT EXISTS (
       AND b.booking_date >= CURRENT_DATE - INTERVAL '1 year'
 );
 
-📸 Before: ![Query DELETE2A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/QueryDELETE2A.png)
-📸 After: ![Query DELETE2B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/QueryDELETE2A.png)
-📸 Execution: ![ResDELETE2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/ResDELETE2.png)
+📸 Before: ![Query DELETE2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/DEL2.png)
+
 
 🔹 Delete orphan gallery images:
 --Query 3
@@ -480,9 +476,7 @@ WHERE NOT EXISTS (
     WHERE a.attraction_id = g.attraction_id
 );
 
-📸 Before: ![Query DELETE3A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/QueryDELETE3A.png)
-📸 After: ![Query DELETE3B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/QueryDELETE3A.png)
-📸 Execution: ![ResDELETE3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/ResDELETE3.png)
+📸 Before: ![Query DELETE3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/DEL3.png)
 
 🔄 UPDATE Queries
 🔹 Update average rating of attractions:--Query 1
@@ -500,9 +494,8 @@ FROM (
 ) sub
 WHERE a.attraction_id = sub.attraction_id;
 
-📸 Before: ![Query UPDATE1A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/UPDATE1A.png)
-📸 After: ![Query UPDATE1B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/UPDATE1B.png)
-📸 Execution: ![ResUPDATE1](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/ResUPDATE1.png)
+📸 Before: ![Query UPDATE1A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/upd1.png)
+
 
 🔹 Update booking date (72-hour rule):
 --Query 2
@@ -514,9 +507,8 @@ WHERE b.booking_id = $2
   AND b.user_id = $3
   AND b.booking_date > CURRENT_DATE + INTERVAL '3 days';
 
-📸 Before: ![Query UPDATE2A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/UPDATE2A.png)
-📸 After: ![Query UPDATE2B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/UPDATE2B.png)
-📸 Execution: ![ResUPDATE2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/ResUPDATE2.png)
+📸 Before: ![Query UPDATE2A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/upd2.png)
+
 
 🔹 Mark active users based on activity:
 --Query 3
@@ -533,9 +525,8 @@ WHERE u.user_id IN (
 );
 
 
-📸 Before: ![Query UPDATE3A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/UPDATE3A.png)
-📸 After: ![Query UPDATE3B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/UPDATE3B.png)
-📸 Execution: ![ResUPDATE3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/ResUPDATE3.png)
+📸 Before: ![Query UPDATE3A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/upd3.png)
+
 
 ⚠️ Constraints (ALTER TABLE)
 🧾 Description:
