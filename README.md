@@ -533,43 +533,80 @@ WHERE u.user_id IN (
 
 Each constraint was added using ALTER TABLE to enforce data integrity rules (e.g., FOREIGN KEY, CHECK, UNIQUE).
 
-🧾 Example:
-ALTER TABLE ...
+🧾1
 
-📸 Invalid insert attempt: ![Query 1B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query1A_SELECT.png)
+📸 Invalid insert attempt: ![ALTER1](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/ALTER1.png)
+
+🧾2
+
+📸 Invalid insert attempt: ![ALTER2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/ALTER2.png)
+
+🧾3
+
+📸 Invalid insert attempt: ![ALTER3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/ALTER3.png)
+
 
 🔄 TRANSACTIONS – COMMIT & ROLLBACK
 Step 1:
 
 Initial state
 📸 DB state
-![Query 1B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query1A_SELECT.png)
+![Rollback1](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Rollback1.png)
 
 Step 2:
 
 Rollback operation
 📸 DB state
-![Query 1B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query1A_SELECT.png)
+![Rollback2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Rollback2.png)
+![Rollback3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Rollback3.png)
 
 Step 3:
 
 Commit operation
 📸 Final DB state
-![Query 1B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query1A_SELECT.png)
+![Rollback4](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Rollback4.png)
+![Rollback5](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Rollback5.png)
 
 ⚡ INDEXES
 Before index:
-
-Execution time: [X ms]
+Execution time: 
 📸 Screenshot
-![Query 1B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query1A_SELECT.png)
+![INDEXES Before](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Before1.png)
 
 After index:
-
-Execution time: [Y ms]
+Execution time:
 📸 Screenshot
-![Query 1B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query1A_SELECT.png)
+![INDEXES After](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/After1.png)
 
 📌 Explanation:
 
 Indexes improved performance by reducing search time and optimizing filtering on frequently queried columns.
+
+Before index:
+Execution time: 
+📸 Screenshot
+![INDEXES Before2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Before2.png)
+
+After index:
+Execution time:
+📸 Screenshot
+![INDEXES After2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/After2.png)
+
+📌 Explanation:
+
+Indexes did not improve Execution time because it is a small table.
+
+
+Before index:
+Execution time: 
+📸 Screenshot
+![INDEXES Before3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Before3.png)
+
+After index:
+Execution time:
+📸 Screenshot
+![INDEXES After3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/After3.png)
+
+📌 Explanation:
+
+Indexes did not improve Execution time because it is a small table.
