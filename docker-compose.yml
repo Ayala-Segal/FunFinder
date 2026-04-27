@@ -1,8 +1,4 @@
-
 services:
-  # -------------------------
-  # PostgreSQL Database
-  # -------------------------
   db:
     image: postgres:16
     container_name: PostgreSQL_DB
@@ -14,21 +10,15 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      # הרצת קובץ יצירת הטבלאות ישירות מתוך תיקיית script
       - ./script/create_tables.sql:/docker-entrypoint-initdb.d/1-create_tables.sql
       
-      # מיפוי שאר התיקיות שציינת (לשימוש עתידי בסקריפטים)
-      # - ./DataImportFiles:/data
-      # - ./MockarooFiles:/mockaroo
+      # תיקון המיפוי: אנחנו מצמידים את התיקייה מהמחשב לאותו שם בדיוק בדוקר
+      # הוספת :z עוזרת לפתור בעיות הרשאה במערכות מסוימות
+      - ./DataImportFiles:/DataImportFiles:z
+      - ./MockarooFiles:/MockarooFiles:z
       
-      # שמירה קבועה של הנתונים בנתיב הנכון
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - zoo_network
+      - postgres_data:/var/lib/postgresql
 
-  # -------------------------
-  # pgAdmin
-  # -------------------------
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadminApp
@@ -42,18 +32,7 @@ services:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - db
-    networks:
-      - zoo_network
 
-# -------------------------
-# Volumes
-# -------------------------
 volumes:
   postgres_data:
   pgadmin_data:
-
-# -------------------------
-# Networks
-# -------------------------
-networks:
-  zoo_network:
