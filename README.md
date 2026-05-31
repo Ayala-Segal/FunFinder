@@ -617,13 +617,14 @@ Indexes did not improve Execution time because it is a small table.
 ## 1. DSD/ERD Diagrams
 
 ### NewDSD Diagram
-![NewDSD](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/NewDSD.png)
+![NewDSD](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/DSD%20חדש.png)
 
 ### NewERD Diagram
-![NewERD](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/NewERD.png)
+![NewERD](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/ERD%20חדש.png)
 
 ### Combined Diagram
-![Combined](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Combined.png)
+![Combined](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/DSD%20integrated.png)
+![Combined](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/ERD%20integrated.png)
 
 ---
 
