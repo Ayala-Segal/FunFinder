@@ -714,7 +714,7 @@ AND NOT EXISTS (
 | Desert ATV Tour  | Negev        | 200   |
 | ...              | ...          | ...   |
 **Screenshot:**  
-![unused_adventure_attractions](imagesView/query1.png)
+![unused_adventure_attractions](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/1.png)
 
 ---
 
@@ -761,7 +761,7 @@ WHERE b.user_id = 1
 | Surf School      | Tel Aviv     | 2024-05-21   |
 | ...              | ...          | ...          |
 **Screenshot:**  
-![not_reviewed_attractions](imagesView/query2.png)
+![not_reviewed_attractions](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/2.png)
 
 ---
 
@@ -787,7 +787,7 @@ WHERE c.name = 'Family'
 | Mini Golf Resort  | 70    | 4.5        | 10:00-20:00  |
 | ...               | ...   | ...        | ...          |
 **Screenshot:**  
-![family_easy_opening](imagesView/query3.png)
+![family_easy_opening](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/3.png)
 
 ---
 
@@ -818,7 +818,7 @@ HAVING COUNT(*) = (
 |---------------------|--------------|
 | Paintball Park      | 45           |
 **Screenshot:**  
-![most_booked_cat5](imagesView/query4.png)
+![most_booked_cat5](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/4.png)
 
 ---
 
@@ -841,7 +841,7 @@ ORDER BY booking_year DESC;
 | 2024         | 6           | 1800        |
 | 2023         | 10          | 3020        |
 **Screenshot:**  
-![yearly_user_summary](imagesView/query5.png)
+![yearly_user_summary](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/5.png)
 
 ---
 
@@ -865,7 +865,7 @@ LIMIT 1;
 |----------------|------------|
 | Adventure      | 128        |
 **Screenshot:**  
-![most_popular_category](imagesView/query6.png)
+![most_popular_category](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/6.png)
 
 ---
 
@@ -889,7 +889,7 @@ WHERE a.attraction_id = 10;
 | Water Wonderland    | Huge water park...   | 09:00-18:00   | img/attractions/water_2.jpg   |
 | ...                 | ...                  | ...           | ...                           |
 **Screenshot:**  
-![ui_detail_page](imagesView/query7.png)
+![ui_detail_page](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/7.png)
 
 ---
 
@@ -925,7 +925,7 @@ ORDER BY a.avg_rating DESC, a.price ASC;
 | 104           | Escape Room   | Netanya     | 80    | 4.7        | Adventure    |
 | ...           | ...           | ...         | ...   | ...        | ...          |
 **Screenshot:**  
-![not_visited_6_months](imagesView/query8.png)
+![not_visited_6_months](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/8.png)
 
 ---
 
