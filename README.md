@@ -74,13 +74,13 @@ Shows user bookings and order history.
 
 ### ERD (Entity-Relationship Diagram)
 
-![ERD Diagram](https://github.com/Ayala-Segal/FunFinder/blob/main/ERDAndDSTFiles/ERD.png)
+![ERD Diagram](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/ERD.png)
 
 ---
 
 ### DSD (Data Structure Diagram)
 
-![DSD Diagram](https://github.com/Ayala-Segal/FunFinder/blob/main/ERDAndDSTFiles/DSD.png)
+![DSD Diagram](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/DSD.png)
 
 ---
 
