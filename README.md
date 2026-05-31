@@ -48,27 +48,27 @@ This section presents the main screens of the system and demonstrates how users 
 
 ### 🏠 Home Page
 The main landing page that provides general navigation and overview of attractions.
-![Home 1](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/home1.png)
-![Home 2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/home2.png)
-![Home 3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/home3.png)
+![Home 1](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/home1.png)
+![Home 2](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/home2.png)
+![Home 3](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/home3.png)
 
 ---
 
 ### 🎟️ Attractions Page
 Displays all available attractions with details and filtering options.
-![Attractions](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/attractions.png)
+![Attractions](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/attractions.png)
 
 ---
 
 ### 🔐 Login Page
 User authentication screen for system access.
-![Login](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/connection.png)
+![Login](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/connection.png)
 
 ---
 
 ### 🛒 Orders Page
 Shows user bookings and order history.
-![Orders](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/order.png)
+![Orders](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/order.png)
 
 ---
 
@@ -168,7 +168,7 @@ WHERE c.name = 'Adventure'
   AND b.booking_id IS NULL;
 
 📸 Screenshot Query:
-![Query 1A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query1A_SELECT.png)
+![Query 1A](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Query1A_SELECT.png)
 
 🧾 Form B – NOT EXISTS version:
 -- Query 1 (Form B - NOT EXISTS version)
@@ -194,7 +194,7 @@ AND NOT EXISTS (
 );
 
 📸 Screenshot Query: 
-![Query 1B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query1B_SELECT.png)
+![Query 1B](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Query1B_SELECT.png)
 
 
 ⚖️ Difference Between Approaches:
@@ -231,7 +231,7 @@ WHERE r.attraction_id = a.attraction_id
 AND r.user_id = 1
 );
 
-![Query 2A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query2A_SELECT.png)
+![Query 2A](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Query2A_SELECT.png)
 
 
 📸 Query B (LEFT JOIN): 
@@ -249,7 +249,7 @@ LEFT JOIN REVIEWS r
 WHERE b.user_id = 1
   AND b.booking_date < CURRENT_DATE
   AND r.review_id IS NULL;  -- No review exists
-![Query 2B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query2B_SELECT.png)
+![Query 2B](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Query2B_SELECT.png)
 
 
 ⚡ Explanation:
@@ -269,7 +269,7 @@ JOIN CATEGORIES c ON a.category_id = c.category_id
 JOIN DIFFICULTY_LEVELS d ON a.difficulty_id = d.difficulty_id
 WHERE c.name = 'Family'
 AND d.name = 'Easy';
-![Query 3A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query3A_SELECT.png)
+![Query 3A](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Query3A_SELECT.png)
 
 📸 Query B (Subquery): 
 -- Form B: Subquery version (no joins)
@@ -284,7 +284,7 @@ SELECT category_id FROM CATEGORIES WHERE name = 'Family'
 AND a.difficulty_id = (
 SELECT difficulty_id FROM DIFFICULTY_LEVELS WHERE name = 'Easy'
 );
-![Query 3B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query3B_SELECT.png)
+![Query 3B](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Query3B_SELECT.png)
 
 ⚡ Explanation:
 JOIN is more readable and scalable
@@ -311,7 +311,7 @@ HAVING COUNT(*) = (
         GROUP BY bd2.attraction_id
     ) sub
 );
-![Query 4A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query4A_SELECT.png)
+![Query 4A](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Query4A_SELECT.png)
 
 📸 Query B (ALL version):
 -- Form B:
@@ -329,7 +329,7 @@ HAVING COUNT(*) >= ALL (
     WHERE a2.category_id = 5
     GROUP BY bd2.attraction_id
 );
-![Query 4B](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Query4B_SELECT.png)
+![Query 4B](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Query4B_SELECT.png)
 
 
 ⚡ Explanation:
@@ -351,7 +351,7 @@ WHERE b.user_id = $1
 GROUP BY EXTRACT(YEAR FROM b.booking_date)
 ORDER BY booking_year DESC;
 
-📸 Query: ![Query 5](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/SEL5.png)
+📸 Query: ![Query 5](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/SEL5.png)
 
 🔹 Query 6 – Most popular categories:
 -- Purpose: Show most popular categories based on bookings
@@ -367,7 +367,7 @@ GROUP BY c.name
 ORDER BY popularity DESC;
 
 
-📸 Query: ![Query 6](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/SEL6.png)
+📸 Query: ![Query 6](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/SEL6.png)
 
 🔹 Query 7 – Full attraction details with images:
 -- Purpose: Show full attraction details with images (UI detail page)
@@ -381,7 +381,7 @@ LEFT JOIN GALLERY_IMAGES g ON a.attraction_id = g.attraction_id  -- Allow missin
 WHERE a.attraction_id = 10;
 
 
-📸 Query: ![Query 7](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/SEL7.png)
+📸 Query: ![Query 7](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/SEL7.png)
 
 
 🔹 Query 8 – Attractions not visited in last 6 months:
@@ -408,7 +408,7 @@ WHERE NOT EXISTS (
 )
 ORDER BY a.avg_rating DESC, a.price ASC;
 
-📸 Query: ![Query 8](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/SEL8.png)
+📸 Query: ![Query 8](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/SEL8.png)
 
 
 🔹 Query 9 – Attractions not visited in last 6 months
@@ -431,7 +431,7 @@ GROUP BY
     a.price
 ORDER BY total_bookings DESC
 LIMIT 4;
-📸 Query: ![Query 9](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/SEL9.png)
+📸 Query: ![Query 9](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/SEL9.png)
 
 
 🗑 DELETE Queries
@@ -447,7 +447,7 @@ WHERE r.review_id IN (
     AND r2.user_id = $1
 );
 
-📸 Before: ![Query DELETE1](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/DEL1.png)
+📸 Before: ![Query DELETE1](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/DEL1.png)
 
 🔹 Delete inactive attractions (no bookings in last year):
 --Query 2
@@ -462,7 +462,7 @@ WHERE NOT EXISTS (
       AND b.booking_date >= CURRENT_DATE - INTERVAL '1 year'
 );
 
-📸 Before: ![Query DELETE2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/DEL2.png)
+📸 Before: ![Query DELETE2](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/DEL2.png)
 
 
 🔹 Delete orphan gallery images:
@@ -476,7 +476,7 @@ WHERE NOT EXISTS (
     WHERE a.attraction_id = g.attraction_id
 );
 
-📸 Before: ![Query DELETE3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/DEL3.png)
+📸 Before: ![Query DELETE3](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/DEL3.png)
 
 🔄 UPDATE Queries
 🔹 Update average rating of attractions:--Query 1
@@ -494,7 +494,7 @@ FROM (
 ) sub
 WHERE a.attraction_id = sub.attraction_id;
 
-📸 Before: ![Query UPDATE1A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/upd1.png)
+📸 Before: ![Query UPDATE1A](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/upd1.png)
 
 
 🔹 Update booking date (72-hour rule):
@@ -507,7 +507,7 @@ WHERE b.booking_id = $2
   AND b.user_id = $3
   AND b.booking_date > CURRENT_DATE + INTERVAL '3 days';
 
-📸 Before: ![Query UPDATE2A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/upd2.png)
+📸 Before: ![Query UPDATE2A](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/upd2.png)
 
 
 🔹 Mark active users based on activity:
@@ -525,7 +525,7 @@ WHERE u.user_id IN (
 );
 
 
-📸 Before: ![Query UPDATE3A](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/upd3.png)
+📸 Before: ![Query UPDATE3A](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/upd3.png)
 
 
 ⚠️ Constraints (ALTER TABLE)
@@ -535,15 +535,15 @@ Each constraint was added using ALTER TABLE to enforce data integrity rules (e.g
 
 🧾1
 
-📸 Invalid insert attempt: ![ALTER1](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/ALTER1.png)
+📸 Invalid insert attempt: ![ALTER1](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/ALTER1.png)
 
 🧾2
 
-📸 Invalid insert attempt: ![ALTER2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/ALTER2.png)
+📸 Invalid insert attempt: ![ALTER2](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/ALTER2.png)
 
 🧾3
 
-📸 Invalid insert attempt: ![ALTER3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/ALTER3.png)
+📸 Invalid insert attempt: ![ALTER3](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/ALTER3.png)
 
 
 🔄 TRANSACTIONS – COMMIT & ROLLBACK
@@ -551,32 +551,32 @@ Step 1:
 
 Initial state
 📸 DB state
-![Rollback1](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Rollback1.png)
+![Rollback1](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Rollback1.png)
 
 Step 2:
 
 Rollback operation
 📸 DB state
-![Rollback2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Rollback2.png)
-![Rollback3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Rollback3.png)
+![Rollback2](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Rollback2.png)
+![Rollback3](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Rollback3.png)
 
 Step 3:
 
 Commit operation
 📸 Final DB state
-![Rollback4](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Rollback4.png)
-![Rollback5](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Rollback5.png)
+![Rollback4](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Rollback4.png)
+![Rollback5](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Rollback5.png)
 
 ⚡ INDEXES
 Before index:
 Execution time: 
 📸 Screenshot
-![INDEXES Before](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Before1.png)
+![INDEXES Before](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Before1.png)
 
 After index:
 Execution time:
 📸 Screenshot
-![INDEXES After](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/After1.png)
+![INDEXES After](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/After1.png)
 
 📌 Explanation:
 
@@ -585,12 +585,12 @@ Indexes improved performance by reducing search time and optimizing filtering on
 Before index:
 Execution time: 
 📸 Screenshot
-![INDEXES Before2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Before2.png)
+![INDEXES Before2](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Before2.png)
 
 After index:
 Execution time:
 📸 Screenshot
-![INDEXES After2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/After2.png)
+![INDEXES After2](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/After2.png)
 
 📌 Explanation:
 
@@ -600,12 +600,12 @@ Indexes did not improve Execution time because it is a small table.
 Before index:
 Execution time: 
 📸 Screenshot
-![INDEXES Before3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/Before3.png)
+![INDEXES Before3](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/Before3.png)
 
 After index:
 Execution time:
 📸 Screenshot
-![INDEXES After3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/After3.png)
+![INDEXES After3](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/After3.png)
 
 📌 Explanation:
 
@@ -954,6 +954,6 @@ LIMIT 4;
 | 74            | SkyJump      | Haifa      | 90   | 17             |
 | ...           | ...          | ...       | ...   | ...            |
 **Screenshot:**  
-![top4_attractions_2months](imagesView/query9.png)
+![top4_attractions_2months](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/9.png)
 
 ---
