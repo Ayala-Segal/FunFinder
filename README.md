@@ -662,9 +662,6 @@ JOIN USERS u ON b.user_id = u.user_id;
 |   113      | Guy Cohen     | France           | 2024-07-02   | 480         | Cancelled  |
 |    ...     | ...           | ...              | ...          | ...         | ...        |
 
-**Screenshot:**  
-![booking_summary_view](imagesView/view_booking_summary.png)
-
 ---
 
 ## 4. Complex Query Examples
