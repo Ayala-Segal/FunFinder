@@ -693,7 +693,88 @@ ALTER TABLE PAYMENT ADD CONSTRAINT fk_payment_booking
 
 ---
 
-## 3. Main View
+## 3. Reverse Engineering Algorithm
+
+After receiving the other team's database backup, we reconstructed their ERD from their tables using the following algorithm:
+
+**Step 1 – Identify Entities:**  
+Each table in the database represents an entity. The table name becomes the entity name in the ERD.
+
+**Step 2 – Identify Attributes:**  
+Each column in a table represents an attribute of the entity. The data type (VARCHAR, INT, DATE, etc.) is noted alongside.
+
+**Step 3 – Identify Primary Keys:**  
+A column defined as `PRIMARY KEY` becomes the unique identifier of the entity (underlined in the ERD). A composite PK usually indicates a weak entity.
+
+**Step 4 – Identify Relationships from Foreign Keys:**  
+Each `FOREIGN KEY` defines a relationship between two entities:
+- The table that holds the FK → the **Many** side
+- The table the FK points to → the **One** side
+
+**Step 5 – Determine Cardinality:**  
+- FK column allows NULL → optional relationship (0 or 1)
+- FK column is NOT NULL → mandatory relationship (exactly 1)
+- FK is part of a composite PK → Many-to-Many (junction table)
+
+**Step 6 – Identify Weak Entities:**  
+A table whose entire primary key consists of foreign keys with no independent identifier is a weak entity.
+
+**Step 7 – Collapse Junction Tables:**  
+A table containing only two foreign keys (plus optional extra attributes) represents a Many-to-Many relationship and is converted into a direct relationship between the two parent entities in the ERD.
+
+### SQL Queries Used to Discover the Structure Automatically
+
+**1. All tables (entities):**
+```sql
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+    AND table_type = 'BASE TABLE'
+ORDER BY table_name;
+```
+
+**2. All columns per table (attributes):**
+```sql
+SELECT table_name, column_name, data_type, is_nullable, column_default
+FROM information_schema.columns
+WHERE table_schema = 'public'
+ORDER BY table_name, ordinal_position;
+```
+
+**3. Primary keys (entity identifiers):**
+```sql
+SELECT tc.table_name, kcu.column_name
+FROM information_schema.table_constraints tc
+JOIN information_schema.key_column_usage kcu
+        ON tc.constraint_name = kcu.constraint_name
+     AND tc.table_schema = kcu.table_schema
+WHERE tc.constraint_type = 'PRIMARY KEY'
+    AND tc.table_schema = 'public'
+ORDER BY tc.table_name;
+```
+
+**4. Foreign keys (relationships between entities):**
+```sql
+SELECT
+        kcu.table_name   AS from_table,
+        kcu.column_name  AS fk_column,
+        ccu.table_name   AS to_table,
+        ccu.column_name  AS pk_column
+FROM information_schema.table_constraints tc
+JOIN information_schema.key_column_usage kcu
+        ON tc.constraint_name = kcu.constraint_name
+     AND tc.table_schema = kcu.table_schema
+JOIN information_schema.constraint_column_usage ccu
+        ON tc.constraint_name = ccu.constraint_name
+     AND tc.table_schema = ccu.table_schema
+WHERE tc.constraint_type = 'FOREIGN KEY'
+    AND tc.table_schema = 'public'
+ORDER BY kcu.table_name;
+```
+
+---
+
+## 4. Main View
 
 ### View: view_booking_summary
 
@@ -734,7 +815,7 @@ SELECT * FROM view_booking_summary LIMIT 10;
 
 ---
 
-## 4. Queries on View
+## 5. Queries on View
 
 ### Query 1 – Number of Bookings per Country
 
