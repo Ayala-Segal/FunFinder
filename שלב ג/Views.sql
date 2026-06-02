@@ -16,9 +16,6 @@
 הוא משלב מידע מטבלת ההזמנות המקורית (BOOKINGS) ומחבר אליו בצורה ישירה את שם הלקוח
 ואת מדינת המגורים שלו (country) - עמודה חדשה שהגיעה כחלק מתהליך המיזוג עם הדאטאבייס של חברתך.
 המבט מאפשר למנהלי המערכת לנתח הרגלי רכישה לפי חלוקה גאוגרפית בקלות ובמהירות.
-
-הנחיות להגשה: יש להריץ את פקודת ה-CREATE למטה, ולאחר מכן לבצע שליפה מלאה:
---> פקודת השליטה להצגה: SELECT * FROM view_booking_summary LIMIT 10;
 */
 
 CREATE OR REPLACE VIEW view_booking_summary AS
@@ -32,9 +29,112 @@ SELECT
 FROM BOOKINGS b
 JOIN USERS u ON b.user_id = u.user_id;
 
+-- שליפה מלאה מהמבט (10 רשומות):
+SELECT * FROM view_booking_summary LIMIT 10;
+
+/*
+===============================================================================
+שאילתא 1 על view_booking_summary
+תיאור: מספר ההזמנות וסך ההכנסות לפי מדינה, ממוין מהפופולרי לפחות.
+שימוש: ניתוח גאוגרפי של בסיס הלקוחות.
+===============================================================================
+*/
+SELECT
+    customer_country,
+    COUNT(*)         AS total_bookings,
+    SUM(total_price) AS total_revenue
+FROM view_booking_summary
+GROUP BY customer_country
+ORDER BY total_bookings DESC;
+
+/*
+===============================================================================
+שאילתא 2 על view_booking_summary
+תיאור: כל ההזמנות המאושרות שמחירן עולה על 300, ממוינות מהיקרה לזולה.
+שימוש: זיהוי לקוחות בעלי ערך גבוה לצורך מבצעים ממוקדים.
+===============================================================================
+*/
+SELECT
+    booking_id,
+    customer_name,
+    customer_country,
+    booking_date,
+    total_price
+FROM view_booking_summary
+WHERE status = 'Confirmed'
+  AND total_price > 300
+ORDER BY total_price DESC;
+
+
+-- ===========================================================================
+-- מבט 2: view_ticket_availability
+-- נקודת מבט: האגף שקיבלנו (ניהול כרטיסים – מהאינטגרציה)
+-- ===========================================================================
+
+/*
+===============================================================================
+                   תיאור מילולי של המבט: view_ticket_availability
+===============================================================================
+מבט המציג את מלאי הכרטיסים הזמינים לכל אטרקציה, יחד עם שם האטרקציה,
+מיקומה, סוג הכרטיס, מחירו ותאריך תוקפו.
+המבט בא מנקודת המבט של מערכת ניהול הכרטיסים שהתקבלה מהאינטגרציה
+(טבלת TICKET שנוצרה חדש), ומשלב אותה עם טבלת ATTRACTIONS הקיימת.
+*/
+
+CREATE OR REPLACE VIEW view_ticket_availability AS
+SELECT
+    t.ticket_id,
+    a.name       AS attraction_name,
+    a.location,
+    t.ticket_type,
+    t.price      AS ticket_price,
+    t.valid_date,
+    t.available_quantity
+FROM TICKET t
+JOIN ATTRACTIONS a ON t.attraction_id = a.attraction_id;
+
+-- שליפה מלאה מהמבט (10 רשומות):
+SELECT * FROM view_ticket_availability LIMIT 10;
+
+/*
+===============================================================================
+שאילתא 1 על view_ticket_availability
+תיאור: לכל סוג כרטיס – כמה כרטיסים זמינים (מלאי > 0) ומה המחיר הממוצע.
+שימוש: ניהול מלאי וקביעת מדיניות תמחור לפי סוג כרטיס.
+===============================================================================
+*/
+SELECT
+    ticket_type,
+    COUNT(*)                             AS total_tickets,
+    SUM(available_quantity)              AS total_available,
+    ROUND(AVG(ticket_price)::numeric, 2) AS avg_price
+FROM view_ticket_availability
+WHERE available_quantity > 0
+GROUP BY ticket_type
+ORDER BY total_available DESC;
+
+/*
+===============================================================================
+שאילתא 2 על view_ticket_availability
+תיאור: כרטיסים בתוקף מהיום ואילך, ממוינים לפי תאריך תוקף.
+שימוש: הצגת כרטיסים רלוונטיים ללקוחות בממשק הרכישה.
+===============================================================================
+*/
+SELECT
+    attraction_name,
+    location,
+    ticket_type,
+    ticket_price,
+    valid_date,
+    available_quantity
+FROM view_ticket_availability
+WHERE valid_date >= CURRENT_DATE
+ORDER BY valid_date ASC;
+
 
 -- ---------------------------------------------------------------------------
--- חלק ב': שאילתות מורכבות על בסיס הטבלאות והשדות המעודכנים
+-- חלק ב': שאילתות השלב הקודם על הדאטאבייס המשולב
+-- (הרצה מחדש לוידוא שהשאילתות משלב ב עדיין עובדות לאחר האינטגרציה)
 -- ---------------------------------------------------------------------------
 
 /*
