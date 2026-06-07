@@ -130,7 +130,6 @@ DROP TABLE IF EXISTS public.TICKET CASCADE;
 DROP TABLE IF EXISTS public.ATTRACTION CASCADE;
 DROP TABLE IF EXISTS public.CUSTOMER CASCADE;
 
-
 -- ---------------------------------------------------------------------------
 -- שלב ב': יצירת הטבלאות החדשות לחלוטין שמגיעות מהמודל המשולב
 -- ---------------------------------------------------------------------------
