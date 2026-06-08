@@ -330,7 +330,7 @@ WHERE b.user_id = 1
 * NOT EXISTS is often easier for the database optimizer to process in anti-join scenarios.
 
 ---
-````md
+
 ##### Query 3 – Family Attractions with Easy Difficulty
 
 **Description**
