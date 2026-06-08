@@ -904,3 +904,191 @@ ORDER BY booking_date;
 | 110        | Maya Stern      | 2024-07-18   | 270.00      | Pending   |
 
 ---
+
+# Reverse Engineering – From Relational Schema to ERD
+
+## Overview
+
+After receiving the backup of the company's database, we performed **Reverse Engineering** in order to reconstruct the **Entity Relationship Diagram (ERD)** from the existing relational schema.
+
+The process was carried out according to the following steps:
+
+---
+
+## Step 1 – Identify Entities
+
+Each table in the database represents an **Entity**.
+
+* Table name → Entity name in the ERD.
+
+---
+
+## Step 2 – Identify Attributes
+
+Each column in a table represents an **Attribute** of the entity.
+
+Examples:
+
+| Column     | Type    |
+| ---------- | ------- |
+| id         | INTEGER |
+| name       | VARCHAR |
+| created_at | DATE    |
+
+The data type is preserved as supporting information.
+
+---
+
+## Step 3 – Identify Primary Keys
+
+Columns defined as **PRIMARY KEY** represent the unique identifier of the entity.
+
+In the ERD:
+
+* Primary keys are underlined.
+* Composite primary keys may indicate weak entities or junction tables.
+
+---
+
+## Step 4 – Identify Relationships
+
+Relationships are derived from **Foreign Keys**.
+
+Rules:
+
+* The table containing the foreign key is usually the **Many** side.
+* The referenced table is usually the **One** side.
+
+Example:
+
+```text
+Orders.customer_id → Customers.customer_id
+```
+
+Represents:
+
+```text
+Customer (1) ────< Order (N)
+```
+
+---
+
+## Step 5 – Determine Cardinality
+
+Cardinality is inferred from foreign key constraints:
+
+| FK Definition          | Cardinality                                 |
+| ---------------------- | ------------------------------------------- |
+| NULL allowed           | Optional relationship (0..1)                |
+| NOT NULL               | Mandatory relationship (1)                  |
+| FK inside composite PK | Usually indicates Many-to-Many relationship |
+
+---
+
+## Step 6 – Detect Weak Entities
+
+A table whose primary key is composed entirely of foreign keys is considered a **Weak Entity**.
+
+Characteristics:
+
+* Depends on another entity for identification.
+* Cannot exist independently.
+
+---
+
+## Step 7 – Collapse Junction Tables
+
+Tables containing only:
+
+* Foreign Key A
+* Foreign Key B
+* Optional relationship attributes
+
+are interpreted as **Many-to-Many relationships**.
+
+Example:
+
+```text
+StudentsCourses
+ ├─ student_id
+ └─ course_id
+```
+
+Becomes:
+
+```text
+Student (N) ───── (N) Course
+```
+
+in the ERD.
+
+---
+
+# Automatic Schema Discovery Queries
+
+The following queries were used to extract the database structure from PostgreSQL's `information_schema`.
+
+## 1. Retrieve All Tables
+
+```sql
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+  AND table_type = 'BASE TABLE'
+ORDER BY table_name;
+```
+
+---
+
+## 2. Retrieve All Columns
+
+```sql
+SELECT table_name,
+       column_name,
+       data_type,
+       is_nullable,
+       column_default
+FROM information_schema.columns
+WHERE table_schema = 'public'
+ORDER BY table_name,
+         ordinal_position;
+```
+
+---
+
+## 3. Retrieve Primary Keys
+
+```sql
+SELECT tc.table_name,
+       kcu.column_name
+FROM information_schema.table_constraints tc
+JOIN information_schema.key_column_usage kcu
+     ON tc.constraint_name = kcu.constraint_name
+    AND tc.table_schema = kcu.table_schema
+WHERE tc.constraint_type = 'PRIMARY KEY'
+  AND tc.table_schema = 'public'
+ORDER BY tc.table_name;
+```
+
+---
+
+## 4. Retrieve Foreign Keys
+
+```sql
+SELECT
+    kcu.table_name  AS from_table,
+    kcu.column_name AS fk_column,
+    ccu.table_name  AS to_table,
+    ccu.column_name AS pk_column,
+    tc.constraint_name
+FROM information_schema.table_constraints tc
+JOIN information_schema.key_column_usage kcu
+     ON tc.constraint_name = kcu.constraint_name
+    AND tc.table_schema = kcu.table_schema
+JOIN information_schema.constraint_column_usage ccu
+     ON tc.constraint_name = ccu.constraint_name
+    AND tc.table_schema = ccu.table_schema
+WHERE tc.constraint_type = 'FOREIGN KEY'
+  AND tc.table_schema = 'public'
+ORDER BY kcu.table_name;
+```
