@@ -399,7 +399,6 @@ AND a.difficulty_id = (
 * Subqueries are simpler to write but may be less optimized in complex scenarios.
 
 ---
-````
 ##### Query 4 – Most Popular Attraction in a Category
 
 **Description**
