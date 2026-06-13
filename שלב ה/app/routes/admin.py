@@ -30,11 +30,28 @@ def dashboard():
 @admin_bp.route('/admin/users')
 @admin_required
 def users_list():
-    users = query("""
-        SELECT user_id, name, email, phone, country, created_at, total_bookings
-        FROM users ORDER BY user_id
-    """)
-    return render_template('admin/users/list.html', users=users)
+    search = request.args.get('search', '').strip()
+    page   = request.args.get('page', 1, type=int)
+    offset = (page - 1) * 200
+    total  = query_one("SELECT COUNT(*) AS n FROM users")['n']
+    if len(search) >= 2:
+        users = query("""
+            SELECT user_id, name, email, phone, country, created_at
+            FROM users
+            WHERE name ILIKE %s OR email ILIKE %s
+            ORDER BY user_id LIMIT 200 OFFSET %s
+        """, (f'%{search}%', f'%{search}%', offset))
+    elif search:
+        users = []
+        flash('הקלד לפחות 2 תווים לחיפוש.', 'info')
+    else:
+        users = query("""
+            SELECT user_id, name, email, phone, country, created_at
+            FROM users ORDER BY user_id LIMIT 200 OFFSET %s
+        """, (offset,))
+    return render_template('admin/users/list.html',
+                           users=users, search=search, total=total,
+                           page=page, has_next=len(users)==200)
 
 
 @admin_bp.route('/admin/users/add', methods=['GET', 'POST'])
@@ -216,20 +233,39 @@ def difficulties_delete(did):
 @admin_bp.route('/admin/tickets')
 @admin_required
 def tickets_list():
-    tickets = query("""
-        SELECT t.ticket_id, t.ticket_type, t.price, t.valid_date,
-               t.available_quantity, a.name AS attraction_name
-        FROM   ticket t
-        JOIN   attractions a ON a.attraction_id = t.attraction_id
-        ORDER  BY t.ticket_id
-    """)
-    return render_template('admin/tickets/list.html', tickets=tickets)
+    search = request.args.get('search', '').strip()
+    page   = request.args.get('page', 1, type=int)
+    offset = (page - 1) * 200
+    total  = query_one("SELECT COUNT(*) AS n FROM ticket")['n']
+    if len(search) >= 2:
+        tickets = query("""
+            SELECT t.ticket_id, t.ticket_type, t.price, t.valid_date,
+                   t.available_quantity, a.name AS attraction_name
+            FROM   ticket t
+            LEFT JOIN attractions a ON a.attraction_id = t.attraction_id
+            WHERE  t.ticket_type ILIKE %s OR COALESCE(a.name,'') ILIKE %s
+            ORDER  BY t.ticket_id LIMIT 200 OFFSET %s
+        """, (f'%{search}%', f'%{search}%', offset))
+    elif search:
+        tickets = []
+        flash('הקלד לפחות 2 תווים לחיפוש.', 'info')
+    else:
+        tickets = query("""
+            SELECT t.ticket_id, t.ticket_type, t.price, t.valid_date,
+                   t.available_quantity, a.name AS attraction_name
+            FROM   ticket t
+            LEFT JOIN attractions a ON a.attraction_id = t.attraction_id
+            ORDER  BY t.ticket_id LIMIT 200 OFFSET %s
+        """, (offset,))
+    return render_template('admin/tickets/list.html',
+                           tickets=tickets, search=search, total=total,
+                           page=page, has_next=len(tickets)==200)
 
 
 @admin_bp.route('/admin/tickets/add', methods=['GET', 'POST'])
 @admin_required
 def tickets_add():
-    attractions = query("SELECT attraction_id, name FROM attractions ORDER BY name")
+    attractions = query("SELECT attraction_id, name FROM attractions ORDER BY name LIMIT 500")
     if request.method == 'POST':
         try:
             max_id = query_one("SELECT COALESCE(MAX(ticket_id),0)+1 AS nid FROM ticket")
@@ -253,7 +289,7 @@ def tickets_add():
 @admin_required
 def tickets_edit(tid):
     ticket = query_one("SELECT * FROM ticket WHERE ticket_id = %s", (tid,))
-    attractions = query("SELECT attraction_id, name FROM attractions ORDER BY name")
+    attractions = query("SELECT attraction_id, name FROM attractions ORDER BY name LIMIT 500")
     if not ticket:
         flash('Not found.', 'warning')
         return redirect(url_for('admin.tickets_list'))
@@ -290,15 +326,35 @@ def tickets_delete(tid):
 @admin_bp.route('/admin/payments')
 @admin_required
 def payments_list():
-    payments = query("""
-        SELECT p.payment_id, p.booking_id, p.amount, p.payment_date,
-               b.booking_date, b.status, u.name AS user_name
-        FROM   payment  p
-        JOIN   bookings b ON b.booking_id = p.booking_id
-        JOIN   users    u ON u.user_id    = b.user_id
-        ORDER  BY p.payment_id DESC
-    """)
-    return render_template('admin/payments/list.html', payments=payments)
+    search = request.args.get('search', '').strip()
+    page   = request.args.get('page', 1, type=int)
+    offset = (page - 1) * 200
+    total  = query_one("SELECT COUNT(*) AS n FROM payment")['n']
+    if len(search) >= 2:
+        payments = query("""
+            SELECT p.payment_id, p.booking_id, p.amount,
+                   b.booking_date, b.status, u.name AS user_name
+            FROM   payment  p
+            JOIN   bookings b ON b.booking_id = p.booking_id
+            JOIN   users    u ON u.user_id    = b.user_id
+            WHERE  u.name ILIKE %s OR CAST(p.booking_id AS TEXT) ILIKE %s
+            ORDER  BY p.payment_id DESC LIMIT 200 OFFSET %s
+        """, (f'%{search}%', f'%{search}%', offset))
+    elif search:
+        payments = []
+        flash('הקלד לפחות 2 תווים לחיפוש.', 'info')
+    else:
+        payments = query("""
+            SELECT p.payment_id, p.booking_id, p.amount,
+                   b.booking_date, b.status, u.name AS user_name
+            FROM   payment  p
+            JOIN   bookings b ON b.booking_id = p.booking_id
+            JOIN   users    u ON u.user_id    = b.user_id
+            ORDER  BY p.payment_id DESC LIMIT 200 OFFSET %s
+        """, (offset,))
+    return render_template('admin/payments/list.html',
+                           payments=payments, search=search, total=total,
+                           page=page, has_next=len(payments)==200)
 
 
 @admin_bp.route('/admin/payments/add', methods=['GET', 'POST'])
@@ -307,7 +363,7 @@ def payments_add():
     bookings = query("""
         SELECT b.booking_id, b.booking_date, b.status, u.name AS user_name
         FROM bookings b JOIN users u ON u.user_id = b.user_id
-        ORDER BY b.booking_id DESC
+        ORDER BY b.booking_id DESC LIMIT 500
     """)
     if request.method == 'POST':
         try:
@@ -330,7 +386,7 @@ def payments_edit(pid):
     bookings = query("""
         SELECT b.booking_id, b.booking_date, b.status, u.name AS user_name
         FROM bookings b JOIN users u ON u.user_id = b.user_id
-        ORDER BY b.booking_id DESC
+        ORDER BY b.booking_id DESC LIMIT 500
     """)
     if not payment:
         flash('Not found.', 'warning')
@@ -363,28 +419,46 @@ def payments_delete(pid):
 @admin_bp.route('/admin/gallery')
 @admin_required
 def gallery_list():
-    gallery = query("""
-        SELECT g.image_id, g.image_url, g.caption, g.attraction_id,
-               a.name AS attraction_name
-        FROM   gallery_images g
-        JOIN   attractions    a ON a.attraction_id = g.attraction_id
-        ORDER  BY g.image_id
-    """)
-    return render_template('admin/gallery/list.html', gallery=gallery)
+    search = request.args.get('search', '').strip()
+    page   = request.args.get('page', 1, type=int)
+    offset = (page - 1) * 200
+    total  = query_one("SELECT COUNT(*) AS n FROM gallery_images")['n']
+    if len(search) >= 2:
+        gallery = query("""
+            SELECT g.image_id, g.image_url, g.attraction_id,
+                   a.name AS attraction_name
+            FROM   gallery_images g
+            JOIN   attractions    a ON a.attraction_id = g.attraction_id
+            WHERE  a.name ILIKE %s
+            ORDER  BY g.image_id LIMIT 200 OFFSET %s
+        """, (f'%{search}%', offset))
+    elif search:
+        gallery = []
+        flash('הקלד לפחות 2 תווים לחיפוש.', 'info')
+    else:
+        gallery = query("""
+            SELECT g.image_id, g.image_url, g.attraction_id,
+                   a.name AS attraction_name
+            FROM   gallery_images g
+            JOIN   attractions    a ON a.attraction_id = g.attraction_id
+            ORDER  BY g.image_id LIMIT 200 OFFSET %s
+        """, (offset,))
+    return render_template('admin/gallery/list.html',
+                           gallery=gallery, search=search, total=total,
+                           page=page, has_next=len(gallery)==200)
 
 
 @admin_bp.route('/admin/gallery/add', methods=['GET', 'POST'])
 @admin_required
 def gallery_add():
-    attractions = query("SELECT attraction_id, name FROM attractions ORDER BY name")
+    attractions = query("SELECT attraction_id, name FROM attractions ORDER BY name LIMIT 500")
     if request.method == 'POST':
         try:
             max_id = query_one("SELECT COALESCE(MAX(image_id),0)+1 AS nid FROM gallery_images")
             execute("""
-                INSERT INTO gallery_images (image_id, image_url, caption, attraction_id)
-                VALUES (%s,%s,%s,%s)
+                INSERT INTO gallery_images (image_id, image_url, attraction_id)
+                VALUES (%s,%s,%s)
             """, (max_id['nid'], request.form['image_url'],
-                  request.form.get('caption') or None,
                   request.form['attraction_id']))
             flash('Image added.', 'success')
             return redirect(url_for('admin.gallery_list'))
@@ -397,17 +471,16 @@ def gallery_add():
 @admin_required
 def gallery_edit(gid):
     image = query_one("SELECT * FROM gallery_images WHERE image_id = %s", (gid,))
-    attractions = query("SELECT attraction_id, name FROM attractions ORDER BY name")
+    attractions = query("SELECT attraction_id, name FROM attractions ORDER BY name LIMIT 500")
     if not image:
         flash('Not found.', 'warning')
         return redirect(url_for('admin.gallery_list'))
     if request.method == 'POST':
         try:
             execute("""
-                UPDATE gallery_images SET image_url=%s, caption=%s, attraction_id=%s
+                UPDATE gallery_images SET image_url=%s, attraction_id=%s
                 WHERE image_id=%s
             """, (request.form['image_url'],
-                  request.form.get('caption') or None,
                   request.form['attraction_id'], gid))
             flash('Updated.', 'success')
             return redirect(url_for('admin.gallery_list'))
@@ -433,13 +506,17 @@ def gallery_delete(gid):
 @admin_bp.route('/admin/audit')
 @admin_required
 def audit_list():
-    audit = query("""
-        SELECT audit_id, booking_id, user_id, old_status, new_status,
-               old_amount, new_amount, changed_by, change_type, change_time, notes
-        FROM   booking_audit
-        ORDER  BY change_time DESC
-        LIMIT  200
-    """)
+    try:
+        audit = query("""
+            SELECT audit_id, booking_id, user_id, old_status, new_status,
+                   old_amount, new_amount, changed_by, change_type, change_time, notes
+            FROM   booking_audit
+            ORDER  BY change_time DESC
+            LIMIT  200
+        """)
+    except Exception:
+        audit = []
+        flash('Audit log table not yet created (run AlterTable.sql from Stage 4).', 'warning')
     return render_template('admin/audit/list.html', audit=audit)
 
 

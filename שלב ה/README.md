@@ -31,7 +31,7 @@ The `.env` file is pre-configured:
 ```
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME_SECRET=attractionDB
+DB_NAME_SECRET=dbnew
 DB_USER_SECRET=Ayelet
 DB_PASSWORD_SECRET=Ayelet1!
 ```

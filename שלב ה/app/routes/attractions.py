@@ -86,16 +86,37 @@ def detail(aid):
 @attractions_bp.route('/admin/attractions')
 @admin_required
 def admin_list():
-    rows = query("""
-        SELECT a.attraction_id, a.name, a.location,
-               a.price, a.avg_rating, a.review_count,
-               c.name AS category_name, d.name AS difficulty_name
-        FROM   attractions a
-        JOIN   categories       c ON c.category_id  = a.category_id
-        JOIN   difficulty_levels d ON d.difficulty_id = a.difficulty_id
-        ORDER  BY a.attraction_id
-    """)
-    return render_template('admin/attractions/list.html', attractions=rows)
+    search = request.args.get('search', '').strip()
+    page   = request.args.get('page', 1, type=int)
+    offset = (page - 1) * 200
+    total  = query_one("SELECT COUNT(*) AS n FROM attractions")['n']
+    if len(search) >= 2:
+        rows = query("""
+            SELECT a.attraction_id, a.name, a.location,
+                   a.price, a.avg_rating, a.review_count,
+                   c.name AS category_name, d.name AS difficulty_name
+            FROM   attractions a
+            JOIN   categories       c ON c.category_id  = a.category_id
+            JOIN   difficulty_levels d ON d.difficulty_id = a.difficulty_id
+            WHERE  a.name ILIKE %s OR a.location ILIKE %s OR c.name ILIKE %s
+            ORDER  BY a.attraction_id LIMIT 200 OFFSET %s
+        """, (f'%{search}%', f'%{search}%', f'%{search}%', offset))
+    elif search:
+        rows = []
+        flash('הקלד לפחות 2 תווים לחיפוש.', 'info')
+    else:
+        rows = query("""
+            SELECT a.attraction_id, a.name, a.location,
+                   a.price, a.avg_rating, a.review_count,
+                   c.name AS category_name, d.name AS difficulty_name
+            FROM   attractions a
+            JOIN   categories       c ON c.category_id  = a.category_id
+            JOIN   difficulty_levels d ON d.difficulty_id = a.difficulty_id
+            ORDER  BY a.attraction_id LIMIT 200 OFFSET %s
+        """, (offset,))
+    return render_template('admin/attractions/list.html',
+                           attractions=rows, search=search, total=total,
+                           page=page, has_next=len(rows)==200)
 
 
 @attractions_bp.route('/admin/attractions/add', methods=['GET', 'POST'])

@@ -6,10 +6,10 @@ bookings_bp = Blueprint('bookings', __name__)
 
 
 def _users():
-    return query("SELECT user_id, name FROM users ORDER BY name")
+    return query("SELECT user_id, name FROM users ORDER BY name LIMIT 500")
 
 def _attractions():
-    return query("SELECT attraction_id, name FROM attractions ORDER BY name")
+    return query("SELECT attraction_id, name FROM attractions ORDER BY name LIMIT 500")
 
 def _status_options():
     return ['pending', 'confirmed', 'completed', 'cancelled', 'vip', 'partial']
@@ -85,20 +85,44 @@ def add_booking(aid):
 @bookings_bp.route('/admin/bookings')
 @admin_required
 def admin_list():
-    bookings = query("""
-        SELECT b.booking_id, b.booking_date, b.status,
-               b.total_price, b.quantity, b.created_at,
-               u.name AS user_name, u.email AS user_email
-        FROM   bookings b
-        JOIN   users    u ON u.user_id = b.user_id
-        ORDER  BY b.booking_id DESC
-    """)
-    return render_template('admin/bookings/list.html', bookings=bookings)
+    search = request.args.get('search', '').strip()
+    page   = request.args.get('page', 1, type=int)
+    offset = (page - 1) * 200
+    from app.db import query_one
+    total = query_one("SELECT COUNT(*) AS n FROM bookings")['n']
+    if len(search) >= 2:
+        bookings = query("""
+            SELECT b.booking_id, b.booking_date, b.status,
+                   b.total_price, b.quantity, b.created_at,
+                   u.name AS user_name, u.email AS user_email
+            FROM   bookings b
+            JOIN   users    u ON u.user_id = b.user_id
+            WHERE  u.name ILIKE %s OR u.email ILIKE %s
+                   OR b.status ILIKE %s
+            ORDER  BY b.booking_id DESC LIMIT 200 OFFSET %s
+        """, (f'%{search}%', f'%{search}%', f'%{search}%', offset))
+    elif search:
+        bookings = []
+        from flask import flash
+        flash('הקלד לפחות 2 תווים לחיפוש.', 'info')
+    else:
+        bookings = query("""
+            SELECT b.booking_id, b.booking_date, b.status,
+                   b.total_price, b.quantity, b.created_at,
+                   u.name AS user_name, u.email AS user_email
+            FROM   bookings b
+            JOIN   users    u ON u.user_id = b.user_id
+            ORDER  BY b.booking_id DESC LIMIT 200 OFFSET %s
+        """, (offset,))
+    return render_template('admin/bookings/list.html',
+                           bookings=bookings, search=search, total=total,
+                           page=page, has_next=len(bookings)==200)
 
 
 @bookings_bp.route('/admin/bookings/add', methods=['GET', 'POST'])
 @admin_required
 def admin_add():
+    from datetime import date
     if request.method == 'POST':
         try:
             max_id = query_one("SELECT COALESCE(MAX(booking_id), 0) + 1 AS nid FROM bookings")
@@ -124,7 +148,8 @@ def admin_add():
             flash(f'Error: {e}', 'danger')
     return render_template('admin/bookings/form.html',
                            booking=None, users=_users(),
-                           status_options=_status_options())
+                           status_options=_status_options(),
+                           today=str(date.today()))
 
 
 @bookings_bp.route('/admin/bookings/<int:bid>/edit', methods=['GET', 'POST'])
@@ -181,18 +206,43 @@ def admin_delete(bid):
 @bookings_bp.route('/admin/booking-details')
 @admin_required
 def bd_list():
-    details = query("""
-        SELECT bd.booking_id, bd.attraction_id, bd.quantity,
-               b.booking_date, b.status,
-               u.name AS user_name,
-               a.name AS attraction_name
-        FROM   booking_details bd
-        JOIN   bookings    b ON b.booking_id    = bd.booking_id
-        JOIN   users       u ON u.user_id       = b.user_id
-        JOIN   attractions a ON a.attraction_id = bd.attraction_id
-        ORDER  BY bd.booking_id, bd.attraction_id
-    """)
-    return render_template('admin/booking_details/list.html', details=details)
+    search = request.args.get('search', '').strip()
+    page   = request.args.get('page', 1, type=int)
+    offset = (page - 1) * 200
+    from app.db import query_one
+    from flask import flash
+    total = query_one("SELECT COUNT(*) AS n FROM booking_details")['n']
+    if len(search) >= 2:
+        details = query("""
+            SELECT bd.booking_id, bd.attraction_id, bd.quantity,
+                   b.booking_date, b.status,
+                   u.name AS user_name,
+                   a.name AS attraction_name
+            FROM   booking_details bd
+            JOIN   bookings    b ON b.booking_id    = bd.booking_id
+            JOIN   users       u ON u.user_id       = b.user_id
+            JOIN   attractions a ON a.attraction_id = bd.attraction_id
+            WHERE  u.name ILIKE %s OR a.name ILIKE %s
+            ORDER  BY bd.booking_id, bd.attraction_id LIMIT 200 OFFSET %s
+        """, (f'%{search}%', f'%{search}%', offset))
+    elif search:
+        details = []
+        flash('הקלד לפחות 2 תווים לחיפוש.', 'info')
+    else:
+        details = query("""
+            SELECT bd.booking_id, bd.attraction_id, bd.quantity,
+                   b.booking_date, b.status,
+                   u.name AS user_name,
+                   a.name AS attraction_name
+            FROM   booking_details bd
+            JOIN   bookings    b ON b.booking_id    = bd.booking_id
+            JOIN   users       u ON u.user_id       = b.user_id
+            JOIN   attractions a ON a.attraction_id = bd.attraction_id
+            ORDER  BY bd.booking_id, bd.attraction_id LIMIT 200 OFFSET %s
+        """, (offset,))
+    return render_template('admin/booking_details/list.html',
+                           details=details, search=search, total=total,
+                           page=page, has_next=len(details)==200)
 
 
 @bookings_bp.route('/admin/booking-details/add', methods=['GET', 'POST'])
@@ -213,7 +263,7 @@ def bd_add():
     bookings = query("""
         SELECT b.booking_id, b.booking_date, b.status, u.name AS user_name
         FROM bookings b JOIN users u ON u.user_id = b.user_id
-        ORDER BY b.booking_id DESC
+        ORDER BY b.booking_id DESC LIMIT 500
     """)
     return render_template('admin/booking_details/form.html',
                            detail=None,
@@ -242,7 +292,7 @@ def bd_edit(bid, aid):
     bookings = query("""
         SELECT b.booking_id, b.booking_date, b.status, u.name AS user_name
         FROM bookings b JOIN users u ON u.user_id = b.user_id
-        ORDER BY b.booking_id DESC
+        ORDER BY b.booking_id DESC LIMIT 500
     """)
     return render_template('admin/booking_details/form.html',
                            detail=detail,

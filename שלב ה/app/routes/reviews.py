@@ -6,16 +6,20 @@ reviews_bp = Blueprint('reviews', __name__)
 
 
 def _users():
-    return query("SELECT user_id, name FROM users ORDER BY name")
+    return query("SELECT user_id, name FROM users ORDER BY name LIMIT 500")
 
 def _attractions():
-    return query("SELECT attraction_id, name FROM attractions ORDER BY name")
+    return query("SELECT attraction_id, name FROM attractions ORDER BY name LIMIT 500")
 
 
 # ── User: Add Review ──────────────────────────────────────────────────────────
 @reviews_bp.route('/reviews/add', methods=['GET', 'POST'])
 @login_required
 def add_review():
+    if session.get('user_id') == 0:
+        flash('Admin accounts cannot post reviews. Log in as a regular user.', 'warning')
+        return redirect(url_for('attractions.list_attractions'))
+
     attractions = _attractions()
     if request.method == 'POST':
         try:
@@ -51,16 +55,38 @@ def add_review():
 @reviews_bp.route('/admin/reviews')
 @admin_required
 def admin_list():
-    reviews = query("""
-        SELECT r.review_id, r.rating, r.comment, r.created_at,
-               u.name AS user_name, a.name AS attraction_name,
-               r.user_id, r.attraction_id
-        FROM   reviews     r
-        JOIN   users       u ON u.user_id       = r.user_id
-        JOIN   attractions a ON a.attraction_id = r.attraction_id
-        ORDER  BY r.created_at DESC
-    """)
-    return render_template('admin/reviews/list.html', reviews=reviews)
+    search = request.args.get('search', '').strip()
+    page   = request.args.get('page', 1, type=int)
+    offset = (page - 1) * 200
+    from app.db import query_one
+    total = query_one("SELECT COUNT(*) AS n FROM reviews")['n']
+    if len(search) >= 2:
+        reviews = query("""
+            SELECT r.review_id, r.rating, r.comment, r.created_at,
+                   u.name AS user_name, a.name AS attraction_name,
+                   r.user_id, r.attraction_id
+            FROM   reviews     r
+            JOIN   users       u ON u.user_id       = r.user_id
+            JOIN   attractions a ON a.attraction_id = r.attraction_id
+            WHERE  u.name ILIKE %s OR a.name ILIKE %s
+            ORDER  BY r.created_at DESC LIMIT 200 OFFSET %s
+        """, (f'%{search}%', f'%{search}%', offset))
+    elif search:
+        reviews = []
+        flash('הקלד לפחות 2 תווים לחיפוש.', 'info')
+    else:
+        reviews = query("""
+            SELECT r.review_id, r.rating, r.comment, r.created_at,
+                   u.name AS user_name, a.name AS attraction_name,
+                   r.user_id, r.attraction_id
+            FROM   reviews     r
+            JOIN   users       u ON u.user_id       = r.user_id
+            JOIN   attractions a ON a.attraction_id = r.attraction_id
+            ORDER  BY r.created_at DESC LIMIT 200 OFFSET %s
+        """, (offset,))
+    return render_template('admin/reviews/list.html',
+                           reviews=reviews, search=search, total=total,
+                           page=page, has_next=len(reviews)==200)
 
 
 @reviews_bp.route('/admin/reviews/add', methods=['GET', 'POST'])

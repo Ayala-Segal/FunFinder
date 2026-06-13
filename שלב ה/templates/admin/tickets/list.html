@@ -2,14 +2,24 @@
 {% block title %}Manage Tickets — Admin{% endblock %}
 {% block content %}
 <div class="container my-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="fw-bold mb-0">Tickets</h4>
     <a href="{{ url_for('admin.tickets_add') }}" class="btn btn-ee">
       <i class="bi bi-plus-lg"></i> Add Ticket
     </a>
   </div>
+  <form method="get" class="d-flex gap-2 mb-3">
+    <input name="search" class="form-control form-control-sm" style="max-width:300px;"
+           placeholder="Search by type or attraction…" value="{{ search or '' }}"/>
+    <button class="btn btn-ee btn-sm"><i class="bi bi-search"></i></button>
+    {% if search %}<a href="{{ url_for('admin.tickets_list') }}" class="btn btn-outline-secondary btn-sm">Clear</a>{% endif %}
+  </form>
+  <p class="text-muted small mb-3">
+    מציג {{ tickets|length }} מתוך {{ total }} טיקטים
+    {% if search %} — תוצאות ל"{{ search }}"{% endif %}
+  </p>
   <div class="table-responsive admin-table-wrap">
-    <table class="table table-hover align-middle">
+    <table class="table table-hover align-middle sortable">
       <thead class="table-light">
         <tr>
           <th>#</th><th>Attraction</th><th>Type</th><th>Price</th>
@@ -44,5 +54,8 @@
       </tbody>
     </table>
   </div>
+  {% with results_count=tickets|length %}
+    {% include 'partials/pagination.html' %}
+  {% endwith %}
 </div>
 {% endblock %}

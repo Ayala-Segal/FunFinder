@@ -22,7 +22,7 @@
       <div class="mb-3">
         <label class="form-label fw-semibold">Booking Date</label>
         <input name="booking_date" type="date" class="form-control" required
-               value="{{ booking.booking_date if booking else '' }}"/>
+               value="{{ booking.booking_date if booking else today }}"/>
       </div>
       <div class="mb-3">
         <label class="form-label fw-semibold">Status</label>

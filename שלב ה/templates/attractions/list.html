@@ -48,7 +48,7 @@
     <div class="col-sm-6 col-lg-4">
       <div class="attraction-card h-100">
         <div class="attraction-img"
-             style="background:linear-gradient(135deg,#1a5c2e {{ loop.index0 * 30 }}deg,#2d9e55);">
+             style="background:linear-gradient(rgba(0,0,0,0.22),rgba(0,0,0,0.22)),url('https://picsum.photos/seed/{{ a.attraction_id }}/600/400') center/cover no-repeat;">
           <span class="cat-badge">{{ a.category_name }}</span>
           {% if a.avg_rating %}
           <span class="rating-badge"><i class="bi bi-star-fill text-warning"></i> {{ a.avg_rating }}</span>

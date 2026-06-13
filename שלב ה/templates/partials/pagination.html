@@ -1,0 +1,24 @@
+{% if page > 1 or has_next %}
+<nav class="d-flex justify-content-center align-items-center gap-2 mt-4">
+  {% if page > 1 %}
+  <a href="{{ request.path }}?page={{ page - 1 }}{% if search %}&search={{ search }}{% endif %}"
+     class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-chevron-left"></i> עמוד {{ page - 1 }}
+  </a>
+  {% endif %}
+
+  <span class="px-3 py-1 rounded bg-light border small fw-semibold text-muted">
+    עמוד {{ page }}
+    &nbsp;·&nbsp;
+    שורות {{ (page - 1) * 200 + 1 }}–{{ (page - 1) * 200 + (results_count or 0) }}
+    מתוך {{ total }}
+  </span>
+
+  {% if has_next %}
+  <a href="{{ request.path }}?page={{ page + 1 }}{% if search %}&search={{ search }}{% endif %}"
+     class="btn btn-ee btn-sm">
+    עמוד {{ page + 1 }} <i class="bi bi-chevron-right"></i>
+  </a>
+  {% endif %}
+</nav>
+{% endif %}

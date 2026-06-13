@@ -2,18 +2,28 @@
 {% block title %}Manage Payments — Admin{% endblock %}
 {% block content %}
 <div class="container my-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="fw-bold mb-0">Payments</h4>
     <a href="{{ url_for('admin.payments_add') }}" class="btn btn-ee">
       <i class="bi bi-plus-lg"></i> Add Payment
     </a>
   </div>
+  <form method="get" class="d-flex gap-2 mb-3">
+    <input name="search" class="form-control form-control-sm" style="max-width:300px;"
+           placeholder="Search by user or booking #…" value="{{ search or '' }}"/>
+    <button class="btn btn-ee btn-sm"><i class="bi bi-search"></i></button>
+    {% if search %}<a href="{{ url_for('admin.payments_list') }}" class="btn btn-outline-secondary btn-sm">Clear</a>{% endif %}
+  </form>
+  <p class="text-muted small mb-3">
+    מציג {{ payments|length }} מתוך {{ total }} תשלומים
+    {% if search %} — תוצאות ל"{{ search }}"{% endif %}
+  </p>
   <div class="table-responsive admin-table-wrap">
-    <table class="table table-hover align-middle">
+    <table class="table table-hover align-middle sortable">
       <thead class="table-light">
         <tr>
           <th>#</th><th>Booking #</th><th>User</th><th>Amount</th>
-          <th>Payment Date</th><th>Booking Status</th><th>Actions</th>
+          <th>Booking Date</th><th>Booking Status</th><th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -23,7 +33,7 @@
           <td>{{ p.booking_id }}</td>
           <td>{{ p.user_name }}</td>
           <td class="fw-semibold">${{ "%.2f"|format(p.amount) }}</td>
-          <td class="text-muted small">{{ p.payment_date or '—' }}</td>
+          <td class="text-muted small">{{ p.booking_date or '—' }}</td>
           <td>
             <span class="status-badge status-{{ (p.status or 'pending')|lower }}">
               {{ p.status or 'pending' }}
@@ -44,5 +54,8 @@
       </tbody>
     </table>
   </div>
+  {% with results_count=payments|length %}
+    {% include 'partials/pagination.html' %}
+  {% endwith %}
 </div>
 {% endblock %}

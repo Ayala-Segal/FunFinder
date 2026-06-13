@@ -2,18 +2,28 @@
 {% block title %}Manage Users — Admin{% endblock %}
 {% block content %}
 <div class="container my-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="fw-bold mb-0">Users</h4>
     <a href="{{ url_for('admin.users_add') }}" class="btn btn-ee">
       <i class="bi bi-plus-lg"></i> Add User
     </a>
   </div>
+  <form method="get" class="d-flex gap-2 mb-2 align-items-center">
+    <input name="search" class="form-control form-control-sm" style="max-width:300px;"
+           placeholder="Search by name or email… (min 2 chars)" value="{{ search or '' }}"/>
+    <button class="btn btn-ee btn-sm"><i class="bi bi-search"></i></button>
+    {% if search %}<a href="{{ url_for('admin.users_list') }}" class="btn btn-outline-secondary btn-sm">Clear</a>{% endif %}
+  </form>
+  <p class="text-muted small mb-3">
+    מציג {{ users|length }} מתוך {{ total }} משתמשים
+    {% if search %} — תוצאות ל"{{ search }}"{% endif %}
+  </p>
   <div class="table-responsive admin-table-wrap">
-    <table class="table table-hover align-middle">
+    <table class="table table-hover align-middle sortable">
       <thead class="table-light">
         <tr>
           <th>#</th><th>Name</th><th>Email</th><th>Phone</th>
-          <th>Country</th><th>Joined</th><th>Bookings</th><th>Actions</th>
+          <th>Country</th><th>Joined</th><th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -25,7 +35,6 @@
           <td class="text-muted small">{{ u.phone or '—' }}</td>
           <td class="text-muted small">{{ u.country or '—' }}</td>
           <td class="text-muted small">{{ u.created_at.strftime('%d.%m.%Y') if u.created_at else '—' }}</td>
-          <td>{{ u.total_bookings or 0 }}</td>
           <td>
             <a href="{{ url_for('admin.users_edit', uid=u.user_id) }}"
                class="btn btn-outline-success btn-sm"><i class="bi bi-pencil"></i></a>
@@ -41,5 +50,8 @@
       </tbody>
     </table>
   </div>
+  {% with results_count=users|length %}
+    {% include 'partials/pagination.html' %}
+  {% endwith %}
 </div>
 {% endblock %}
