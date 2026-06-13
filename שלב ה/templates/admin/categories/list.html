@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Manage Categories — Admin{% endblock %}
+{% block content %}
+<div class="container my-4" style="max-width:700px;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Categories</h4>
+    <a href="{{ url_for('admin.categories_add') }}" class="btn btn-ee">
+      <i class="bi bi-plus-lg"></i> Add Category
+    </a>
+  </div>
+  <div class="table-responsive admin-table-wrap">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr><th>#</th><th>Name</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for c in categories %}
+        <tr>
+          <td class="text-muted small">{{ c.category_id }}</td>
+          <td class="fw-semibold">{{ c.name }}</td>
+          <td>
+            <a href="{{ url_for('admin.categories_edit', cid=c.category_id) }}"
+               class="btn btn-outline-success btn-sm"><i class="bi bi-pencil"></i></a>
+            <form method="post" action="{{ url_for('admin.categories_delete', cid=c.category_id) }}"
+                  class="d-inline" onsubmit="return confirm('Delete category {{ c.name }}?')">
+              <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" class="text-center text-muted py-4">No categories found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

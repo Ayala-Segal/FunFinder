@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Book {{ attraction.name }} — ExploreEase{% endblock %}
+{% block content %}
+<div class="container my-4" style="max-width:560px;">
+  <a href="{{ url_for('attractions.detail', aid=attraction.attraction_id) }}"
+     class="text-muted small mb-3 d-inline-block">
+    <i class="bi bi-arrow-left"></i> Back to {{ attraction.name }}
+  </a>
+  <div class="card shadow-sm border-0 rounded-4 p-4">
+    <h4 class="fw-bold mb-1">Book Your Experience</h4>
+    <p class="text-muted mb-4">{{ attraction.name }}</p>
+    <form method="post">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Date</label>
+        <input type="date" name="booking_date" class="form-control"
+               min="{{ now }}" required/>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Number of Tickets</label>
+        <input type="number" name="quantity" class="form-control"
+               min="1" max="20" value="1" required/>
+      </div>
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Contact Phone (optional)</label>
+        <input type="text" name="contact_phone" class="form-control" placeholder="+1 555 000 0000"/>
+      </div>
+      <div class="alert alert-success-subtle border-0 rounded-3 mb-3 py-2 small">
+        <i class="bi bi-tag"></i> Price per ticket: <strong>${{ "%.2f"|format(attraction.price) }}</strong>
+      </div>
+      <button type="submit" class="btn btn-ee w-100 py-2">
+        <i class="bi bi-calendar-check"></i> Confirm Booking
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

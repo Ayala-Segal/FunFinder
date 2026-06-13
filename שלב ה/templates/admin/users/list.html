@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Manage Users — Admin{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Users</h4>
+    <a href="{{ url_for('admin.users_add') }}" class="btn btn-ee">
+      <i class="bi bi-plus-lg"></i> Add User
+    </a>
+  </div>
+  <div class="table-responsive admin-table-wrap">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>#</th><th>Name</th><th>Email</th><th>Phone</th>
+          <th>Country</th><th>Joined</th><th>Bookings</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td class="text-muted small">{{ u.user_id }}</td>
+          <td class="fw-semibold">{{ u.name }}</td>
+          <td class="text-muted small">{{ u.email }}</td>
+          <td class="text-muted small">{{ u.phone or '—' }}</td>
+          <td class="text-muted small">{{ u.country or '—' }}</td>
+          <td class="text-muted small">{{ u.created_at.strftime('%d.%m.%Y') if u.created_at else '—' }}</td>
+          <td>{{ u.total_bookings or 0 }}</td>
+          <td>
+            <a href="{{ url_for('admin.users_edit', uid=u.user_id) }}"
+               class="btn btn-outline-success btn-sm"><i class="bi bi-pencil"></i></a>
+            <form method="post" action="{{ url_for('admin.users_delete', uid=u.user_id) }}"
+                  class="d-inline" onsubmit="return confirm('Delete user {{ u.name }}?')">
+              <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="text-center text-muted py-4">No users found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

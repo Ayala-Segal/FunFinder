@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Booking Details — Admin{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Booking Details</h4>
+    <a href="{{ url_for('bookings.bd_add') }}" class="btn btn-ee">
+      <i class="bi bi-plus-lg"></i> Add Detail
+    </a>
+  </div>
+  <div class="table-responsive admin-table-wrap">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Booking #</th><th>User</th><th>Attraction</th>
+          <th>Date</th><th>Quantity</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in details %}
+        <tr>
+          <td class="text-muted small">{{ d.booking_id }}</td>
+          <td>{{ d.user_name }}</td>
+          <td>{{ d.attraction_name }}</td>
+          <td class="text-muted small">{{ d.booking_date }}</td>
+          <td>{{ d.quantity }}</td>
+          <td>
+            <a href="{{ url_for('bookings.bd_edit', bid=d.booking_id, aid=d.attraction_id) }}"
+               class="btn btn-outline-success btn-sm"><i class="bi bi-pencil"></i></a>
+            <form method="post"
+                  action="{{ url_for('bookings.bd_delete', bid=d.booking_id, aid=d.attraction_id) }}"
+                  class="d-inline"
+                  onsubmit="return confirm('Delete this booking detail?')">
+              <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-4">No booking details found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

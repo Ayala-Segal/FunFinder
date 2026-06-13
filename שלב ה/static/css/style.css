@@ -1,0 +1,280 @@
+/* ========== ExploreEase — Green Theme ========== */
+
+:root {
+  --ee-green:        #1a5c2e;
+  --ee-green-mid:    #2d9e55;
+  --ee-green-light:  #e8f5ec;
+  --ee-green-subtle: #d4edda;
+}
+
+/* --- Body & Typography --- */
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #f8faf9;
+  color: #1a1a1a;
+}
+
+/* --- Navbar --- */
+.navbar {
+  background: #fff !important;
+  border-bottom: 1px solid #e0ebe4;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--ee-green) !important;
+}
+.navbar-brand span {
+  color: var(--ee-green-mid);
+}
+.nav-link {
+  color: #444 !important;
+  font-size: .9rem;
+}
+.nav-link:hover, .nav-link.active {
+  color: var(--ee-green) !important;
+}
+.btn-ee {
+  background: var(--ee-green);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background .15s;
+}
+.btn-ee:hover {
+  background: var(--ee-green-mid);
+  color: #fff;
+}
+
+/* --- Hero Section --- */
+.hero-section {
+  min-height: 480px;
+  background: linear-gradient(120deg, #f0faf4 0%, #e8f5ec 100%);
+  border-bottom: 1px solid #d4edda;
+  padding: 80px 0;
+}
+.hero-title {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #111;
+}
+.hero-sub {
+  color: #555;
+  font-size: 1.1rem;
+  margin-top: 1rem;
+}
+
+/* --- Category Cards --- */
+.category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 10px;
+  background: #fff;
+  border: 1px solid #e0ebe4;
+  border-radius: 14px;
+  transition: box-shadow .15s, border-color .15s;
+  text-align: center;
+}
+.category-card:hover {
+  box-shadow: 0 4px 16px rgba(26,92,46,.12);
+  border-color: var(--ee-green-mid);
+}
+
+/* --- Attraction Cards --- */
+.attraction-card {
+  background: #fff;
+  border: 1px solid #e0ebe4;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: box-shadow .15s, transform .15s;
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.attraction-card:hover {
+  box-shadow: 0 6px 24px rgba(26,92,46,.13);
+  transform: translateY(-2px);
+}
+.attraction-img {
+  height: 180px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 12px;
+  gap: 6px;
+}
+.attraction-body {
+  padding: 16px;
+}
+.cat-badge {
+  background: rgba(255,255,255,.92);
+  color: var(--ee-green);
+  font-size: .72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: .03em;
+}
+.rating-badge {
+  background: rgba(255,255,255,.92);
+  font-size: .72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-left: auto;
+}
+
+/* --- Detail Page Hero --- */
+.detail-hero {
+  height: 280px;
+  border-radius: 16px;
+  display: flex;
+  align-items: flex-end;
+  padding: 20px;
+}
+
+/* --- Booking Sidebar --- */
+.booking-sidebar {
+  background: #fff;
+  border: 1px solid #e0ebe4;
+  border-radius: 16px;
+  padding: 24px;
+  position: sticky;
+  top: 80px;
+}
+
+/* --- Booking Cards (My Bookings) --- */
+.booking-card {
+  background: #fff;
+  border: 1px solid #e0ebe4;
+  border-radius: 14px;
+  transition: box-shadow .15s;
+}
+.booking-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,.07);
+}
+.status-badge {
+  display: inline-block;
+  font-size: .75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  letter-spacing: .04em;
+}
+.status-pending    { background: #fff3cd; color: #856404; }
+.status-confirmed  { background: #d1e7dd; color: #0f5132; }
+.status-cancelled  { background: #f8d7da; color: #842029; }
+.status-completed  { background: #cff4fc; color: #055160; }
+
+/* --- Review Cards --- */
+.review-card {
+  background: var(--ee-green-light);
+  border-radius: 12px;
+}
+
+/* --- Admin Tables --- */
+.admin-table-wrap {
+  background: #fff;
+  border: 1px solid #e0ebe4;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.admin-stat-card {
+  transition: box-shadow .15s, border-color .15s;
+  border: 1px solid #e0ebe4 !important;
+}
+.admin-stat-card:hover {
+  box-shadow: 0 4px 16px rgba(26,92,46,.1);
+  border-color: var(--ee-green-mid) !important;
+}
+
+/* --- Filter Bar --- */
+.filter-bar {
+  background: #fff;
+  border: 1px solid #e0ebe4;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+/* --- Report Cards --- */
+.report-card {
+  background: #fff;
+  border: 1px solid #e0ebe4;
+  border-radius: 14px;
+  padding: 24px;
+  height: 100%;
+}
+
+/* --- Login Page --- */
+.login-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0faf4 0%, #e8f5ec 100%);
+  display: flex;
+  align-items: center;
+}
+.login-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(26,92,46,.12);
+  max-width: 420px;
+  width: 100%;
+}
+.avatar-circle {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--ee-green-light);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 1.8rem;
+  color: var(--ee-green);
+}
+
+/* --- Admin Choice Cards --- */
+.choice-card {
+  background: #fff;
+  border: 2px solid #e0ebe4;
+  border-radius: 20px;
+  padding: 40px 30px;
+  text-align: center;
+  text-decoration: none;
+  color: #1a1a1a;
+  transition: border-color .15s, box-shadow .15s, transform .15s;
+  display: block;
+}
+.choice-card:hover {
+  border-color: var(--ee-green);
+  box-shadow: 0 8px 32px rgba(26,92,46,.14);
+  transform: translateY(-3px);
+  color: var(--ee-green);
+}
+.choice-icon {
+  font-size: 3rem;
+  color: var(--ee-green);
+  margin-bottom: 16px;
+}
+
+/* --- Alerts (success-subtle) --- */
+.alert-success-subtle {
+  background: var(--ee-green-light);
+  color: var(--ee-green);
+}
+
+/* --- Footer --- */
+footer {
+  border-top: 1px solid #e0ebe4;
+  background: #fff;
+  padding: 20px 0;
+  font-size: .85rem;
+  color: #888;
+}
+
+/* --- Responsive --- */
+@media (max-width: 576px) {
+  .hero-title { font-size: 2rem; }
+  .hero-section { padding: 50px 0; min-height: auto; }
+}

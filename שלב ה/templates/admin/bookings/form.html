@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit' if booking else 'Add' }} Booking — Admin{% endblock %}
+{% block content %}
+<div class="container my-4" style="max-width:560px;">
+  <a href="{{ url_for('bookings.admin_list') }}" class="text-muted small mb-3 d-inline-block">
+    <i class="bi bi-arrow-left"></i> Back to Bookings
+  </a>
+  <div class="card border-0 shadow-sm rounded-4 p-4">
+    <h4 class="fw-bold mb-4">{{ 'Edit' if booking else 'Add' }} Booking</h4>
+    <form method="post">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">User</label>
+        <select name="user_id" class="form-select" required>
+          {% for u in users %}
+          <option value="{{ u.user_id }}"
+            {{ 'selected' if booking and booking.user_id==u.user_id }}>
+            {{ u.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Booking Date</label>
+        <input name="booking_date" type="date" class="form-control" required
+               value="{{ booking.booking_date if booking else '' }}"/>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Status</label>
+        <select name="status" class="form-select">
+          {% for s in status_options %}
+          <option value="{{ s }}" {{ 'selected' if booking and booking.status==s }}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Total Price ($)</label>
+        <input name="total_price" type="number" step="0.01" class="form-control"
+               value="{{ booking.total_price if booking else '' }}"/>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Quantity</label>
+        <input name="quantity" type="number" min="1" class="form-control"
+               value="{{ booking.quantity if booking else '1' }}"/>
+      </div>
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Contact Phone</label>
+        <input name="contact_phone" class="form-control"
+               value="{{ booking.contact_phone if booking else '' }}"/>
+      </div>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-ee px-4">
+          <i class="bi bi-check-lg"></i> Save
+        </button>
+        <a href="{{ url_for('bookings.admin_list') }}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

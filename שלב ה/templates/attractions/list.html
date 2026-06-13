@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Explore Attractions — ExploreEase{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+    <div>
+      <h3 class="fw-bold mb-0">Explore Attractions</h3>
+      <p class="text-muted small">Discover {{ attractions|length }} unique experience(s)</p>
+    </div>
+    {% if session.get('is_admin') %}
+    <a href="{{ url_for('attractions.admin_add') }}" class="btn btn-ee">
+      <i class="bi bi-plus-lg"></i> Add Attraction
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Filters -->
+  <form method="get" class="filter-bar mb-4 d-flex flex-wrap gap-2 align-items-end">
+    <div>
+      <label class="form-label small mb-1">Category</label>
+      <select name="category_id" class="form-select form-select-sm">
+        <option value="">All Categories</option>
+        {% for c in categories %}
+        <option value="{{ c.category_id }}" {{ 'selected' if selected_cat==c.category_id }}>{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="form-label small mb-1">Difficulty</label>
+      <select name="difficulty_id" class="form-select form-select-sm">
+        <option value="">All Levels</option>
+        {% for d in difficulties %}
+        <option value="{{ d.difficulty_id }}" {{ 'selected' if selected_diff==d.difficulty_id }}>{{ d.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex-grow-1">
+      <label class="form-label small mb-1">Search</label>
+      <input name="search" class="form-control form-control-sm" placeholder="Name or location…" value="{{ search }}"/>
+    </div>
+    <button class="btn btn-ee btn-sm"><i class="bi bi-funnel"></i> Filter</button>
+    <a href="{{ url_for('attractions.list_attractions') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+  </form>
+
+  <!-- Grid -->
+  <div class="row g-4">
+    {% for a in attractions %}
+    <div class="col-sm-6 col-lg-4">
+      <div class="attraction-card h-100">
+        <div class="attraction-img"
+             style="background:linear-gradient(135deg,#1a5c2e {{ loop.index0 * 30 }}deg,#2d9e55);">
+          <span class="cat-badge">{{ a.category_name }}</span>
+          {% if a.avg_rating %}
+          <span class="rating-badge"><i class="bi bi-star-fill text-warning"></i> {{ a.avg_rating }}</span>
+          {% endif %}
+        </div>
+        <div class="attraction-body">
+          <h6 class="fw-bold mb-1">{{ a.name }}</h6>
+          <p class="text-muted small mb-1">
+            <i class="bi bi-geo-alt"></i> {{ a.location }}
+          </p>
+          <p class="text-muted small mb-2">
+            <i class="bi bi-clock"></i> {{ a.duration }} min &nbsp;
+            <i class="bi bi-bar-chart"></i> {{ a.difficulty_name }}
+          </p>
+          <p class="text-muted small mb-3">Starting from</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-success fs-5">${{ "%.0f"|format(a.price) }}</span>
+            <div class="d-flex gap-1">
+              <a href="{{ url_for('attractions.detail', aid=a.attraction_id) }}"
+                 class="btn btn-ee btn-sm">View</a>
+              {% if session.get('is_admin') %}
+              <a href="{{ url_for('attractions.admin_edit', aid=a.attraction_id) }}"
+                 class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil"></i></a>
+              <form method="post" action="{{ url_for('attractions.admin_delete', aid=a.attraction_id) }}"
+                    onsubmit="return confirm('Delete this attraction?')">
+                <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center text-muted py-5">
+      <i class="bi bi-search fs-1 d-block mb-2"></i>
+      No attractions found. Try adjusting your filters.
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

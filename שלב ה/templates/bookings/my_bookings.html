@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}My Bookings — ExploreEase{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-0">My Bookings</h3>
+      <p class="text-muted small">Manage your upcoming and past adventures</p>
+    </div>
+    <span class="badge bg-light text-dark border fs-6 px-3 py-2">
+      <i class="bi bi-bag"></i> {{ bookings|length }} Order(s)
+    </span>
+  </div>
+
+  {% for b in bookings %}
+  <div class="booking-card mb-3 p-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <span class="status-badge status-{{ b.status|lower }}">{{ b.status|upper }}</span>
+        <span class="text-muted small ms-2">Order #{{ b.booking_id }}</span>
+        <h5 class="fw-bold mt-2 mb-1">{{ b.attractions or 'Booking #' + b.booking_id|string }}</h5>
+      </div>
+      {% if b.total_price %}
+      <div class="text-end">
+        <p class="fw-bold fs-5 mb-0">${{ "%.2f"|format(b.total_price) }}</p>
+        <small class="text-muted">Total Paid</small>
+      </div>
+      {% endif %}
+    </div>
+    <div class="d-flex gap-4 mt-3 flex-wrap text-muted small">
+      <span><i class="bi bi-calendar3"></i> {{ b.booking_date }}</span>
+      {% if b.quantity %}<span><i class="bi bi-ticket-perforated"></i> {{ b.quantity }} Ticket(s)</span>{% endif %}
+      {% if b.contact_phone %}<span><i class="bi bi-telephone"></i> {{ b.contact_phone }}</span>{% endif %}
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <small class="text-muted">Booked on {{ b.created_at.strftime('%d.%m.%Y') if b.created_at else '' }}</small>
+      <div class="d-flex gap-2">
+        <a href="{{ url_for('attractions.list_attractions') }}" class="text-success small">
+          View Attractions <i class="bi bi-chevron-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-bag-x fs-1 d-block mb-3"></i>
+    <h5>No bookings yet</h5>
+    <a href="{{ url_for('attractions.list_attractions') }}" class="btn btn-ee mt-2">Explore Attractions</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

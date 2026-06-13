@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit' if ticket else 'Add' }} Ticket — Admin{% endblock %}
+{% block content %}
+<div class="container my-4" style="max-width:520px;">
+  <a href="{{ url_for('admin.tickets_list') }}" class="text-muted small mb-3 d-inline-block">
+    <i class="bi bi-arrow-left"></i> Back to Tickets
+  </a>
+  <div class="card border-0 shadow-sm rounded-4 p-4">
+    <h4 class="fw-bold mb-4">{{ 'Edit' if ticket else 'Add' }} Ticket</h4>
+    <form method="post">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Attraction</label>
+        <select name="attraction_id" class="form-select" required>
+          {% for a in attractions %}
+          <option value="{{ a.attraction_id }}"
+            {{ 'selected' if ticket and ticket.attraction_id==a.attraction_id }}>
+            {{ a.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Ticket Type</label>
+        <select name="ticket_type" class="form-select" required>
+          {% for t in ['Adult','Child','Family','Senior'] %}
+          <option value="{{ t }}" {{ 'selected' if ticket and ticket.ticket_type==t }}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Price ($)</label>
+        <input name="price" type="number" step="0.01" class="form-control" required
+               value="{{ ticket.price if ticket else '' }}"/>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Available Quantity</label>
+        <input name="available_quantity" type="number" min="0" class="form-control" required
+               value="{{ ticket.available_quantity if ticket else '0' }}"/>
+      </div>
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Valid Date</label>
+        <input name="valid_date" type="date" class="form-control"
+               value="{{ ticket.valid_date if ticket else '' }}"/>
+      </div>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-ee px-4"><i class="bi bi-check-lg"></i> Save</button>
+        <a href="{{ url_for('admin.tickets_list') }}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

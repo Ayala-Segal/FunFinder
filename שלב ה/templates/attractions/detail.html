@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}{{ a.name }} — ExploreEase{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <a href="{{ url_for('attractions.list_attractions') }}" class="text-muted small mb-3 d-inline-block">
+    <i class="bi bi-arrow-left"></i> Back to Attractions
+  </a>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <!-- Hero image -->
+      <div class="detail-hero mb-4"
+           style="background:linear-gradient(135deg,#1a5c2e,#2d9e55);">
+        <span class="cat-badge fs-6">{{ a.category_name }}</span>
+      </div>
+
+      <h2 class="fw-bold">{{ a.name }}</h2>
+      <p class="text-muted">
+        <i class="bi bi-geo-alt"></i> {{ a.location }} &nbsp;·&nbsp;
+        <i class="bi bi-clock"></i> {{ a.duration }} min &nbsp;·&nbsp;
+        <i class="bi bi-bar-chart"></i> {{ a.difficulty_name }}
+      </p>
+      {% if a.avg_rating %}
+      <div class="mb-3">
+        {% for i in range(a.avg_rating|int) %}<i class="bi bi-star-fill text-warning"></i>{% endfor %}
+        <span class="text-muted small ms-1">{{ a.avg_rating }} ({{ a.review_count }} reviews)</span>
+      </div>
+      {% endif %}
+
+      <p>{{ a.full_description or a.short_description }}</p>
+
+      <!-- Tickets -->
+      {% if tickets %}
+      <h5 class="fw-bold mt-4">Available Tickets</h5>
+      <div class="table-responsive">
+        <table class="table table-sm">
+          <thead class="table-light"><tr>
+            <th>Type</th><th>Price</th><th>Valid Date</th><th>Available</th>
+          </tr></thead>
+          <tbody>
+          {% for t in tickets %}
+          <tr>
+            <td><span class="badge bg-success-subtle text-success">{{ t.ticket_type }}</span></td>
+            <td>${{ "%.2f"|format(t.price) }}</td>
+            <td>{{ t.valid_date }}</td>
+            <td>{{ t.available_quantity }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+      <!-- Reviews -->
+      <h5 class="fw-bold mt-4">Reviews</h5>
+      {% for r in reviews %}
+      <div class="review-card mb-3 p-3">
+        <div class="d-flex justify-content-between">
+          <strong>{{ r.user_name }}</strong>
+          <span class="text-muted small">{{ r.created_at.strftime('%d %b %Y') if r.created_at else '' }}</span>
+        </div>
+        <div class="my-1">
+          {% for i in range(r.rating) %}<i class="bi bi-star-fill text-warning"></i>{% endfor %}
+        </div>
+        <p class="mb-0 small">{{ r.comment or '' }}</p>
+      </div>
+      {% else %}
+      <p class="text-muted small">No reviews yet. Be the first!</p>
+      {% endfor %}
+      <a href="{{ url_for('reviews.add_review', aid=a.attraction_id) }}"
+         class="btn btn-outline-success btn-sm mt-2">
+        <i class="bi bi-pencil"></i> Write a Review
+      </a>
+    </div>
+
+    <!-- Sidebar / Book -->
+    <div class="col-lg-4">
+      <div class="booking-sidebar">
+        <p class="text-muted small mb-1">Starting from</p>
+        <h3 class="fw-bold text-success mb-3">${{ "%.2f"|format(a.price) }}</h3>
+        <p><i class="bi bi-people"></i> {{ a.target_audience }}</p>
+        {% if a.opening_hours %}
+        <p><i class="bi bi-door-open"></i> Opens {{ a.opening_hours }}</p>
+        {% endif %}
+        <a href="{{ url_for('bookings.add_booking', aid=a.attraction_id) }}"
+           class="btn btn-ee w-100 py-2 mt-2">
+          <i class="bi bi-calendar-check"></i> Book Now
+        </a>
+        {% if session.get('is_admin') %}
+        <hr/>
+        <a href="{{ url_for('attractions.admin_edit', aid=a.attraction_id) }}"
+           class="btn btn-outline-secondary w-100 btn-sm">
+          <i class="bi bi-pencil"></i> Edit Attraction
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

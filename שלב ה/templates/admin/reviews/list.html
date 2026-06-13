@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Manage Reviews — Admin{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Reviews</h4>
+  </div>
+  <div class="table-responsive admin-table-wrap">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>#</th><th>User</th><th>Attraction</th><th>Rating</th>
+          <th>Comment</th><th>Date</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in reviews %}
+        <tr>
+          <td class="text-muted small">{{ r.review_id }}</td>
+          <td>{{ r.user_name }}</td>
+          <td>{{ r.attraction_name }}</td>
+          <td>
+            {% for i in range(r.rating) %}
+            <i class="bi bi-star-fill text-warning" style="font-size:.75rem;"></i>
+            {% endfor %}
+          </td>
+          <td class="text-muted small" style="max-width:200px;">
+            {{ (r.comment or '')[:80] }}{{ '…' if r.comment and r.comment|length>80 else '' }}
+          </td>
+          <td class="text-muted small">{{ r.created_at.strftime('%d.%m.%Y') if r.created_at else '—' }}</td>
+          <td>
+            <a href="{{ url_for('reviews.admin_edit', rid=r.review_id) }}"
+               class="btn btn-outline-success btn-sm"><i class="bi bi-pencil"></i></a>
+            <form method="post" action="{{ url_for('reviews.admin_delete', rid=r.review_id) }}"
+                  class="d-inline" onsubmit="return confirm('Delete this review?')">
+              <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No reviews found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

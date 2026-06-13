@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}ExploreEase — Your Next Adventure Awaits{% endblock %}
+{% block content %}
+
+<!-- Hero -->
+<section class="hero-section d-flex align-items-center">
+  <div class="container">
+    <p class="text-success small fw-semibold mb-2">
+      <i class="bi bi-arrow-up-right"></i> Discover the Extraordinary
+    </p>
+    <h1 class="hero-title">Your Next<br/>
+      <span class="text-success">Adventure</span> Awaits
+    </h1>
+    <p class="hero-sub">Book unique attractions, guided tours, and unforgettable<br/>experiences around the world.</p>
+    <div class="d-flex gap-3 mt-4">
+      <a href="{{ url_for('attractions.list_attractions') }}" class="btn btn-ee btn-lg">
+        Explore Attractions <i class="bi bi-arrow-right"></i>
+      </a>
+      <form class="d-flex" action="{{ url_for('attractions.list_attractions') }}" method="get">
+        <input name="search" class="form-control rounded-pill me-2" placeholder="Search attractions…"/>
+        <button class="btn btn-outline-success rounded-pill px-3">
+          <i class="bi bi-search"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Browse by Category -->
+<section class="container my-5">
+  <h4 class="fw-bold mb-1">Browse by Category</h4>
+  <p class="text-muted mb-4">Find the perfect experience for your mood</p>
+  <div class="row g-3">
+    {% for cat in categories %}
+    {% if cat.name != 'All' %}
+    <div class="col-6 col-md-3">
+      <a href="{{ url_for('attractions.list_attractions', category_id=cat.category_id) }}"
+         class="category-card text-decoration-none">
+        <div class="cat-icon mb-2">
+          {% if 'Child' in cat.name %}<span class="fs-2">🧸</span>
+          {% elif 'Adult' in cat.name %}<span class="fs-2">🍷</span>
+          {% elif 'Family' in cat.name %}<span class="fs-2">👨‍👩‍👧</span>
+          {% elif 'Adventure' in cat.name %}<span class="fs-2">🧗</span>
+          {% else %}<span class="fs-2">🎯</span>{% endif %}
+        </div>
+        <p class="fw-semibold text-dark mb-0">{{ cat.name }}</p>
+      </a>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Featured Experiences -->
+<section class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-1">
+    <div>
+      <p class="text-success small fw-semibold mb-0">
+        <i class="bi bi-graph-up-arrow"></i> TRENDING NOW
+      </p>
+      <h4 class="fw-bold">Featured Experiences</h4>
+    </div>
+    <a href="{{ url_for('attractions.list_attractions') }}" class="text-success small">
+      View all <i class="bi bi-arrow-right"></i>
+    </a>
+  </div>
+  <div class="row g-4 mt-1">
+    {% for a in featured %}
+    <div class="col-md-4">
+      <a href="{{ url_for('attractions.detail', aid=a.attraction_id) }}"
+         class="attraction-card text-decoration-none">
+        <div class="attraction-img"
+             style="background:linear-gradient(135deg,#1a5c2e,#2d9e55);">
+          <span class="cat-badge">{{ a.category_name }}</span>
+          {% if a.avg_rating %}
+          <span class="rating-badge">
+            <i class="bi bi-star-fill text-warning"></i> {{ a.avg_rating }}
+          </span>
+          {% endif %}
+        </div>
+        <div class="attraction-body">
+          <h6 class="fw-bold mb-1">{{ a.name }}</h6>
+          <p class="text-muted small mb-2">
+            <i class="bi bi-geo-alt"></i> {{ a.location }}
+          </p>
+          <p class="text-muted small mb-2">Starting from</p>
+          <p class="fw-bold text-success">${{ "%.0f"|format(a.price) }}</p>
+        </div>
+      </a>
+    </div>
+    {% else %}
+    <p class="text-muted">No featured attractions yet.</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}

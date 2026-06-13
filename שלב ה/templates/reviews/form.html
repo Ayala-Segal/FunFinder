@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Write a Review — ExploreEase{% endblock %}
+{% block content %}
+<div class="container my-4" style="max-width:540px;">
+  <a href="{{ url_for('attractions.list_attractions') }}"
+     class="text-muted small mb-3 d-inline-block">
+    <i class="bi bi-arrow-left"></i> Back to Attractions
+  </a>
+  <div class="card shadow-sm border-0 rounded-4 p-4">
+    <h4 class="fw-bold mb-4">{{ 'Edit Review' if review else 'Write a Review' }}</h4>
+    <form method="post">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Attraction</label>
+        <select name="attraction_id" class="form-select" required>
+          <option value="">Select an attraction…</option>
+          {% for a in attractions %}
+          <option value="{{ a.attraction_id }}"
+            {{ 'selected' if (review and review.attraction_id==a.attraction_id)
+                          or (selected_aid and selected_aid==a.attraction_id) }}>
+            {{ a.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Rating</label>
+        <div class="d-flex gap-3">
+          {% for val in [1,2,3,4,5] %}
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="rating"
+                   id="r{{ val }}" value="{{ val }}"
+                   {{ 'checked' if review and review.rating==val }}>
+            <label class="form-check-label" for="r{{ val }}">
+              <i class="bi bi-star-fill text-warning"></i> {{ val }}
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Comment</label>
+        <textarea name="comment" class="form-control" rows="4"
+                  placeholder="Share your experience…">{{ review.comment if review else '' }}</textarea>
+      </div>
+      <button type="submit" class="btn btn-ee w-100 py-2">
+        <i class="bi bi-send"></i> Submit Review
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

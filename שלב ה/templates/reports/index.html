@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% block title %}Reports & Functions — ExploreEase{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <div class="mb-4">
+    <h3 class="fw-bold mb-0">Reports & DB Functions</h3>
+    <p class="text-muted small">Run Stage 2 queries and Stage 4 functions/procedures</p>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Query 1 -->
+    <div class="col-md-6">
+      <div class="report-card">
+        <h6 class="fw-bold"><i class="bi bi-bar-chart text-success me-1"></i> Query 1 — Top Rated Attractions</h6>
+        <p class="text-muted small mb-3">Attractions with avg rating ≥ 4.0 and booking count</p>
+        <form method="post" action="{{ url_for('reports.query1') }}">
+          <button class="btn btn-ee btn-sm w-100">Run Query</button>
+        </form>
+        {% if q1_rows is defined %}
+        <div class="mt-3 table-responsive">
+          <table class="table table-sm">
+            <thead class="table-light">
+              <tr><th>Attraction</th><th>Category</th><th>Avg Rating</th><th>Bookings</th></tr>
+            </thead>
+            <tbody>
+              {% for r in q1_rows %}
+              <tr>
+                <td>{{ r.attraction_name }}</td>
+                <td class="text-muted small">{{ r.category_name }}</td>
+                <td><i class="bi bi-star-fill text-warning"></i> {{ r.avg_rating }}</td>
+                <td>{{ r.total_bookings }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="4" class="text-muted small">No results.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Query 2 -->
+    <div class="col-md-6">
+      <div class="report-card">
+        <h6 class="fw-bold"><i class="bi bi-people text-success me-1"></i> Query 2 — High Spenders</h6>
+        <p class="text-muted small mb-3">Customers spending above the monthly average</p>
+        <form method="post" action="{{ url_for('reports.query2') }}">
+          <button class="btn btn-ee btn-sm w-100">Run Query</button>
+        </form>
+        {% if q2_rows is defined %}
+        <div class="mt-3 table-responsive">
+          <table class="table table-sm">
+            <thead class="table-light">
+              <tr><th>User</th><th>Email</th><th>Total</th><th>Month/Year</th></tr>
+            </thead>
+            <tbody>
+              {% for r in q2_rows %}
+              <tr>
+                <td>{{ r.full_name }}</td>
+                <td class="text-muted small">{{ r.email }}</td>
+                <td>${{ "%.2f"|format(r.total_price) }}</td>
+                <td class="text-muted small">{{ r.booking_month }}/{{ r.booking_year }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="4" class="text-muted small">No results.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Function 1: fn_apply_booking_discounts -->
+    <div class="col-md-6">
+      <div class="report-card">
+        <h6 class="fw-bold"><i class="bi bi-tag text-success me-1"></i> Function 1 — Apply Booking Discounts</h6>
+        <p class="text-muted small mb-3">
+          <code>fn_apply_booking_discounts(user_id)</code><br/>
+          Applies pricing tiers and purges stale cancellations
+        </p>
+        <form method="post" action="{{ url_for('reports.fn_discounts') }}" class="d-flex gap-2">
+          <input name="user_id" type="number" class="form-control form-control-sm"
+                 placeholder="User ID" min="1" value="{{ fn1_uid or 1 }}" required/>
+          <button class="btn btn-ee btn-sm px-3">Run</button>
+        </form>
+        {% if fn1_result is defined %}
+        <div class="mt-3">
+          <div class="alert alert-success-subtle border-0 rounded-3 py-2 small">
+            <i class="bi bi-check-circle"></i> {{ fn1_result }}
+          </div>
+          {% if fn1_rows %}
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead class="table-light"><tr><th>Booking #</th><th>Status</th><th>Total</th></tr></thead>
+              <tbody>
+                {% for b in fn1_rows %}
+                <tr>
+                  <td>{{ b.booking_id }}</td>
+                  <td><span class="status-badge status-{{ (b.status or 'pending')|lower }}">{{ b.status }}</span></td>
+                  <td>${{ "%.2f"|format(b.total_price) if b.total_price else '—' }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Function 2: fn_attraction_revenue_report -->
+    <div class="col-md-6">
+      <div class="report-card">
+        <h6 class="fw-bold"><i class="bi bi-graph-up text-success me-1"></i> Function 2 — Revenue Report</h6>
+        <p class="text-muted small mb-3">
+          <code>fn_attraction_revenue_report(category_id)</code><br/>
+          Restocks tickets and returns revenue summary via refcursor
+        </p>
+        <form method="post" action="{{ url_for('reports.fn_revenue') }}" class="d-flex gap-2">
+          <input name="category_id" type="number" class="form-control form-control-sm"
+                 placeholder="Category ID" min="1" value="{{ fn2_cid or 1 }}" required/>
+          <button class="btn btn-ee btn-sm px-3">Run</button>
+        </form>
+        {% if fn2_rows is defined %}
+        <div class="mt-3 table-responsive">
+          <table class="table table-sm">
+            <thead class="table-light">
+              <tr><th>Attraction</th><th>Revenue</th><th>Bookings</th><th>Avg Rating</th></tr>
+            </thead>
+            <tbody>
+              {% for r in fn2_rows %}
+              <tr>
+                <td>{{ r.attraction_name }}</td>
+                <td>${{ "%.2f"|format(r.total_revenue) if r.total_revenue else '0' }}</td>
+                <td>{{ r.total_bookings }}</td>
+                <td>{{ r.avg_rating or '—' }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="4" class="text-muted small">No data.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Procedure 1: pr_complete_booking -->
+    <div class="col-md-6">
+      <div class="report-card">
+        <h6 class="fw-bold"><i class="bi bi-calendar-check text-success me-1"></i> Procedure 1 — Complete Booking</h6>
+        <p class="text-muted small mb-3">
+          <code>pr_complete_booking(booking_id)</code><br/>
+          Validates tickets and marks booking completed
+        </p>
+        <form method="post" action="{{ url_for('reports.proc_complete') }}" class="d-flex gap-2">
+          <input name="booking_id" type="number" class="form-control form-control-sm"
+                 placeholder="Booking ID" min="1" value="{{ proc1_bid or '' }}" required/>
+          <button class="btn btn-ee btn-sm px-3">Run</button>
+        </form>
+        {% if proc1_rows is defined %}
+        <div class="mt-3 table-responsive">
+          <table class="table table-sm">
+            <thead class="table-light"><tr><th>Booking #</th><th>Status</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for b in proc1_rows %}
+              <tr>
+                <td>{{ b.booking_id }}</td>
+                <td><span class="status-badge status-{{ (b.status or 'pending')|lower }}">{{ b.status }}</span></td>
+                <td>${{ "%.2f"|format(b.total_price) if b.total_price else '—' }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Procedure 2: pr_sync_attraction_stats -->
+    <div class="col-md-6">
+      <div class="report-card">
+        <h6 class="fw-bold"><i class="bi bi-arrow-repeat text-success me-1"></i> Procedure 2 — Sync Attraction Stats</h6>
+        <p class="text-muted small mb-3">
+          <code>pr_sync_attraction_stats(min_reviews)</code><br/>
+          Recalculates ratings and review counts for all attractions
+        </p>
+        <form method="post" action="{{ url_for('reports.proc_sync') }}" class="d-flex gap-2">
+          <input name="min_reviews" type="number" class="form-control form-control-sm"
+                 placeholder="Min Reviews" min="0"
+                 value="{{ proc2_min or 2 }}" required/>
+          <button class="btn btn-ee btn-sm px-3">Run</button>
+        </form>
+        {% if proc2_rows is defined %}
+        <div class="mt-3 table-responsive">
+          <table class="table table-sm">
+            <thead class="table-light"><tr><th>Attraction</th><th>Avg Rating</th><th>Reviews</th></tr></thead>
+            <tbody>
+              {% for a in proc2_rows %}
+              <tr>
+                <td>{{ a.name }}</td>
+                <td>{{ a.avg_rating or '—' }}</td>
+                <td>{{ a.review_count or 0 }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="3" class="text-muted small">No data.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div><!-- /row -->
+</div>
+{% endblock %}

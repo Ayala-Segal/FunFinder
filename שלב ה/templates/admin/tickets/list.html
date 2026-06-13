@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Manage Tickets — Admin{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Tickets</h4>
+    <a href="{{ url_for('admin.tickets_add') }}" class="btn btn-ee">
+      <i class="bi bi-plus-lg"></i> Add Ticket
+    </a>
+  </div>
+  <div class="table-responsive admin-table-wrap">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>#</th><th>Attraction</th><th>Type</th><th>Price</th>
+          <th>Available</th><th>Valid Date</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tickets %}
+        <tr>
+          <td class="text-muted small">{{ t.ticket_id }}</td>
+          <td>{{ t.attraction_name }}</td>
+          <td><span class="badge bg-success-subtle text-success">{{ t.ticket_type }}</span></td>
+          <td>${{ "%.2f"|format(t.price) }}</td>
+          <td>
+            <span class="{{ 'text-danger fw-bold' if t.available_quantity < 5 else '' }}">
+              {{ t.available_quantity }}
+            </span>
+          </td>
+          <td class="text-muted small">{{ t.valid_date or '—' }}</td>
+          <td>
+            <a href="{{ url_for('admin.tickets_edit', tid=t.ticket_id) }}"
+               class="btn btn-outline-success btn-sm"><i class="bi bi-pencil"></i></a>
+            <form method="post" action="{{ url_for('admin.tickets_delete', tid=t.ticket_id) }}"
+                  class="d-inline" onsubmit="return confirm('Delete this ticket?')">
+              <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No tickets found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

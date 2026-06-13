@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Audit Log — Admin{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <div class="mb-4">
+    <h4 class="fw-bold mb-0">Audit Log</h4>
+    <p class="text-muted small">Read-only record of booking changes</p>
+  </div>
+  <div class="table-responsive admin-table-wrap">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>#</th><th>Booking #</th><th>User #</th>
+          <th>Type</th><th>Old Status</th><th>New Status</th>
+          <th>Old Amount</th><th>New Amount</th>
+          <th>Changed By</th><th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in audit %}
+        <tr>
+          <td class="text-muted small">{{ row.audit_id }}</td>
+          <td>{{ row.booking_id }}</td>
+          <td>{{ row.user_id or '—' }}</td>
+          <td><span class="badge bg-secondary-subtle text-secondary">{{ row.change_type }}</span></td>
+          <td class="text-muted small">{{ row.old_status or '—' }}</td>
+          <td>
+            {% if row.new_status %}
+            <span class="status-badge status-{{ row.new_status|lower }}">{{ row.new_status }}</span>
+            {% else %}—{% endif %}
+          </td>
+          <td class="text-muted small">${{ "%.2f"|format(row.old_amount) if row.old_amount else '—' }}</td>
+          <td class="text-muted small">${{ "%.2f"|format(row.new_amount) if row.new_amount else '—' }}</td>
+          <td class="text-muted small">{{ row.changed_by or '—' }}</td>
+          <td class="text-muted small" style="white-space:nowrap;">
+            {{ row.change_time.strftime('%d.%m.%Y %H:%M') if row.change_time else '—' }}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="10" class="text-center text-muted py-4">No audit records yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

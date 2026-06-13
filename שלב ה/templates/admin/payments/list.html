@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Manage Payments — Admin{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Payments</h4>
+    <a href="{{ url_for('admin.payments_add') }}" class="btn btn-ee">
+      <i class="bi bi-plus-lg"></i> Add Payment
+    </a>
+  </div>
+  <div class="table-responsive admin-table-wrap">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>#</th><th>Booking #</th><th>User</th><th>Amount</th>
+          <th>Payment Date</th><th>Booking Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in payments %}
+        <tr>
+          <td class="text-muted small">{{ p.payment_id }}</td>
+          <td>{{ p.booking_id }}</td>
+          <td>{{ p.user_name }}</td>
+          <td class="fw-semibold">${{ "%.2f"|format(p.amount) }}</td>
+          <td class="text-muted small">{{ p.payment_date or '—' }}</td>
+          <td>
+            <span class="status-badge status-{{ (p.status or 'pending')|lower }}">
+              {{ p.status or 'pending' }}
+            </span>
+          </td>
+          <td>
+            <a href="{{ url_for('admin.payments_edit', pid=p.payment_id) }}"
+               class="btn btn-outline-success btn-sm"><i class="bi bi-pencil"></i></a>
+            <form method="post" action="{{ url_for('admin.payments_delete', pid=p.payment_id) }}"
+                  class="d-inline" onsubmit="return confirm('Delete payment #{{ p.payment_id }}?')">
+              <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No payments found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
