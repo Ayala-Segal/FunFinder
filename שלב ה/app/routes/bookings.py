@@ -71,14 +71,60 @@ def add_booking(aid):
                 VALUES (%s, %s, %s)
             """, (bid, aid, qty))
 
-            flash(f'Booking #{bid} created successfully!', 'success')
-            return redirect(url_for('bookings.my_bookings'))
+            return redirect(url_for('bookings.payment', bid=bid))
         except Exception as e:
             flash(f'Error creating booking: {e}', 'danger')
 
     return render_template('bookings/book_form.html',
                            attraction=attraction,
                            now=str(date.today()))
+
+
+# ── User: Payment ─────────────────────────────────────────────────────────────
+@bookings_bp.route('/payment/<int:bid>', methods=['GET', 'POST'])
+@login_required
+def payment(bid):
+    booking = query_one("""
+        SELECT b.booking_id, b.booking_date, b.status, b.total_price, b.quantity,
+               b.user_id,
+               STRING_AGG(a.name, ', ') AS attractions
+        FROM   bookings b
+        LEFT JOIN booking_details bd ON bd.booking_id   = b.booking_id
+        LEFT JOIN attractions      a  ON a.attraction_id = bd.attraction_id
+        WHERE  b.booking_id = %s
+        GROUP  BY b.booking_id
+    """, (bid,))
+
+    if not booking:
+        flash('Booking not found.', 'warning')
+        return redirect(url_for('bookings.my_bookings'))
+
+    # Block accessing another user's payment page
+    if booking['user_id'] != session.get('user_id') and not session.get('is_admin'):
+        flash('Access denied.', 'danger')
+        return redirect(url_for('bookings.my_bookings'))
+
+    # Already paid
+    if booking['status'] == 'confirmed':
+        flash('This booking is already confirmed.', 'info')
+        return redirect(url_for('bookings.my_bookings'))
+
+    if request.method == 'POST':
+        try:
+            max_pay = query_one("SELECT COALESCE(MAX(payment_id), 0) + 1 AS nid FROM payment")
+            execute("""
+                INSERT INTO payment (payment_id, booking_id, amount)
+                VALUES (%s, %s, %s)
+            """, (max_pay['nid'], bid, booking['total_price']))
+
+            execute("UPDATE bookings SET status='confirmed' WHERE booking_id = %s", (bid,))
+
+            flash(f'Payment successful! Booking #{bid} is confirmed.', 'success')
+            return redirect(url_for('bookings.my_bookings'))
+        except Exception as e:
+            flash(f'Payment error: {e}', 'danger')
+
+    return render_template('bookings/payment.html', booking=booking)
 
 
 # ── Admin: All Bookings ───────────────────────────────────────────────────────
