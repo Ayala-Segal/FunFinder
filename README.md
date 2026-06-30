@@ -31,16 +31,20 @@
 Download or clone this repository to your computer.
 
 ### Step 2 — Open a terminal in the project folder
-Open a terminal (Command Prompt / PowerShell / Terminal) and navigate to the root folder of the project (where `docker-compose.yml` is located).
+Open a terminal (Command Prompt / PowerShell / Terminal) and navigate to the **root folder** of the project — the folder that contains `docker-compose.yml`.
 
 ### Step 3 — Run one command
 ```bash
 docker-compose up
 ```
 
-Wait about **1–2 minutes** for everything to start. You will see log messages in the terminal — wait until you see `Running on http://0.0.0.0:5000`.
+> ⚠️ **First run only:** Docker will build the images and load all data into the database (~40,000 records + all Phase 4 SQL objects). This takes about **2–3 minutes**. Do not close the terminal.
 
-> ⚠️ **First run only:** The database needs to initialize and load all data. This takes longer the first time (~2 minutes). Do not close the terminal.
+Watch the terminal output. When you see a line like:
+```
+Running on http://0.0.0.0:5000
+```
+the application is ready.
 
 ### Step 4 — Open in browser
 Go to: **http://localhost:5000**
@@ -51,6 +55,8 @@ Press `Ctrl + C` in the terminal, then run:
 docker-compose down
 ```
 
+> To also delete all stored data (full reset), run `docker-compose down -v` instead.
+
 ---
 
 ### Login Credentials
@@ -58,26 +64,27 @@ docker-compose down
 | Role | Email | Password |
 |------|-------|----------|
 | **Admin** | `admin@exploreease.com` | `Admin1234!` |
-| **Regular User** | any email from the database | the value shown in the `password_hash` column |
+| **Regular User** | Register a new account from the login page | your chosen password |
 
-> **Admin** has access to the full management panel: CRUD for all tables, SQL reports, and Phase 4 PL/pgSQL functions & procedures.
+> **Admin** has access to the full management panel: CRUD for all tables, SQL reports, and Phase 4 PL/pgSQL functions & procedures.  
 > **Regular User** can browse attractions, make bookings, write reviews, and simulate payments.
 
 ---
 
-### What runs automatically
-When you run `docker-compose up`, the following starts automatically:
+### Services started automatically
+
+When you run `docker-compose up`, the following three services start automatically:
 
 | Service | URL | Description |
 |---------|-----|-------------|
 | **Web App** | http://localhost:5000 | The FunFinder / ExploreEase website |
-| **pgAdmin** | http://localhost:8080 | Database management UI |
-| **PostgreSQL** | port 5432 | The database (used internally) |
+| **pgAdmin** | http://localhost:8080 | Database browser UI (login: `admin@admin.com` / `admin`) |
+| **PostgreSQL** | port 5432 | The database (internal, used by the web app) |
 
-The database is automatically initialized with:
-- All tables (Phase 1)
-- All data (~40,000 records)
-- Phase 4 objects: `booking_audit` table, 2 functions, 2 procedures, 2 triggers
+The database is automatically initialized on first run with:
+- All tables (Phase 1 schema + Phase 3 integration additions)
+- All data (~40,000 records across 8 tables)
+- All Phase 4 objects: `booking_audit` table, 2 functions, 2 procedures, 2 triggers
 
 ---
 
@@ -1770,84 +1777,45 @@ This architecture ensures that the `booking_audit` table always reflects the tru
 
 ---
 
-## ExploreEase — Setup & Features
+## ExploreEase — Application Details
 
 **ExploreEase** is the full-stack web application built on top of the FunFinder database.
 
+> **To run the application**, see the [How to Run the Website](#-how-to-run-the-website-phase-5) section at the top of this README.  
+> A single `docker-compose up` command starts everything — no manual Python setup is required.
+
 ### Stack
-- **Backend**: Python 3.10+ · Flask 2.3 · psycopg2
+- **Backend**: Python 3.10+ · Flask · psycopg2
 - **Frontend**: Bootstrap 5.3 · Bootstrap Icons · Jinja2 templates
-- **Database**: PostgreSQL (Docker container from Stage 3)
-
-### Setup
-
-#### 1. Prerequisites
-- Python 3.10+
-- Docker + Docker Compose (for the database)
-- The database from Stages 1–4 must already be running
-
-#### 2. Start the database
-```bash
-cd ..          # root of the repo
-docker-compose up -d
-```
-
-#### 3. Install Python dependencies
-```bash
-cd "שלב ה"
-pip install -r requirements.txt
-```
-
-#### 4. Configure environment
-The `.env` file is pre-configured:
-```
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME_SECRET=dbnew
-DB_USER_SECRET=Ayelet
-DB_PASSWORD_SECRET=Ayelet1!
-```
-
-#### 5. Run the application
-```bash
-python run.py
-```
-
-Open your browser at **http://localhost:5000**
-
-### Login Credentials
-
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@exploreease.com | Admin1234! |
-| User | (any user from DB) | (password_hash value) |
+- **Database**: PostgreSQL 18 (Docker container, initialized automatically)
+- **Containerization**: Docker + Docker Compose
 
 ### Features
 
 **Regular Users**
 - Browse and search attractions (by category, difficulty, keyword)
 - View attraction details with tickets and reviews
-- Book an attraction
-- View own bookings
+- Book an attraction and simulate payment
+- View own booking history
 - Write reviews
 
-**Admin**
+**Admin** (`admin@exploreease.com`)
 - All of the above, plus:
-- Full CRUD for all 11 tables
-- Run Stage 2 SQL queries
-- Execute Stage 4 PL/pgSQL functions and procedures with visible results
+- Full CRUD for all tables (attractions, users, bookings, reviews, tickets, payments, …)
+- Run Phase 2 SQL reports
+- Execute Phase 4 PL/pgSQL functions and procedures with live visible results
 
 ### Folder Structure
 ```
 שלב ה/
-├── run.py
+├── Dockerfile              ← Docker image definition for the web app
+├── run.py                  ← Entry point
 ├── requirements.txt
-├── .env
 ├── app/
-│   ├── __init__.py       # Flask factory + blueprint registration
-│   ├── config.py         # Env-based configuration
-│   ├── db.py             # Database helpers
-│   ├── decorators.py     # login_required, admin_required
+│   ├── __init__.py         ← Flask factory + blueprint registration
+│   ├── config.py           ← Env-based configuration (reads from docker-compose environment)
+│   ├── db.py               ← Database helpers (query, execute, refcursor)
+│   ├── decorators.py       ← login_required, admin_required
 │   └── routes/
 │       ├── auth.py
 │       ├── home.py
