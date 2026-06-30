@@ -6,6 +6,13 @@ attractions_bp = Blueprint('attractions', __name__)
 
 
 # ── Helper lookups ────────────────────────────────────────────────────────────
+def _opening_hours(form):
+    frm = form.get('opening_from', '').strip()
+    to  = form.get('opening_to',   '').strip()
+    if frm and to:
+        return f"{frm} - {to}"
+    return frm or to or None
+
 def _categories():
     return query("SELECT category_id, name FROM categories ORDER BY name")
 
@@ -144,7 +151,7 @@ def admin_add():
                 None, 0,
                 request.form.get('main_image_url') or None,
                 request.form['category_id'],
-                request.form.get('opening_hours') or None,
+                _opening_hours(request.form),
             ))
             flash('Attraction added successfully.', 'success')
             return redirect(url_for('attractions.admin_list'))
@@ -187,7 +194,7 @@ def admin_edit(aid):
                 request.form.get('review_count') or 0,
                 request.form.get('main_image_url') or None,
                 request.form['category_id'],
-                request.form.get('opening_hours') or None,
+                _opening_hours(request.form),
                 aid,
             ))
             flash('Attraction updated successfully.', 'success')

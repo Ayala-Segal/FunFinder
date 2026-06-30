@@ -98,8 +98,13 @@
             Opening Hours
             <span class="text-muted fw-normal small">(optional)</span>
           </label>
-          <input name="opening_hours" type="time" class="form-control"
-                 value="{{ attraction.opening_hours if attraction else '' }}"/>
+          <div class="d-flex align-items-center gap-2">
+            <input name="opening_from" type="time" class="form-control"
+                   value="{{ attraction.opening_hours.split(' - ')[0] if attraction and attraction.opening_hours and ' - ' in attraction.opening_hours else (attraction.opening_hours if attraction and attraction.opening_hours else '') }}"/>
+            <span class="text-muted small fw-semibold">to</span>
+            <input name="opening_to" type="time" class="form-control"
+                   value="{{ attraction.opening_hours.split(' - ')[1] if attraction and attraction.opening_hours and ' - ' in attraction.opening_hours else '' }}"/>
+          </div>
         </div>
 
       </div>
