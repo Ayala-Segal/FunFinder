@@ -27,13 +27,6 @@ SET SESSION AUTHORIZATION DEFAULT;
 
 ALTER TABLE public.categories DISABLE TRIGGER ALL;
 
-COPY public.categories (category_id, name, icon_identifier) FROM stdin;
-1	All	\N
-2	Children	\N
-3	Adults	\N
-4	Family	\N
-5	Adventure	\N
-\.
 
 
 ALTER TABLE public.categories ENABLE TRIGGER ALL;
@@ -44,13 +37,6 @@ ALTER TABLE public.categories ENABLE TRIGGER ALL;
 
 ALTER TABLE public.difficulty_levels DISABLE TRIGGER ALL;
 
-COPY public.difficulty_levels (difficulty_id, name) FROM stdin;
-1	All
-2	Easy
-3	Medium
-4	Hard
-5	Super-Hard
-\.
 
 
 ALTER TABLE public.difficulty_levels ENABLE TRIGGER ALL;
