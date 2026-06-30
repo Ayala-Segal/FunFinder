@@ -46,6 +46,10 @@ def add_booking(aid):
         flash('Attraction not found.', 'warning')
         return redirect(url_for('attractions.list_attractions'))
 
+    if session.get('is_admin'):
+        flash('Admins cannot make bookings. Use a regular user account.', 'warning')
+        return redirect(url_for('attractions.list_attractions'))
+
     if request.method == 'POST':
         try:
             qty           = int(request.form.get('quantity', 1))
