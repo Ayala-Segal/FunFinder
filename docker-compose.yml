@@ -12,7 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - ./init-db:/docker-entrypoint-initdb.d:z
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U Ayelet -d dbnew"]
       interval: 5s
