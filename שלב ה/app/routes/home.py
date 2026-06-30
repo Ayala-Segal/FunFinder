@@ -1,13 +1,13 @@
 from flask import Blueprint, render_template, session, redirect, url_for
 from app.db import query
-from app.decorators import login_required
 
 home_bp = Blueprint('home', __name__)
 
 
 @home_bp.route('/')
-@login_required
 def index():
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
     # Featured attractions: top 6 by avg_rating
     featured = query("""
         SELECT a.attraction_id, a.name, a.location, a.price,
