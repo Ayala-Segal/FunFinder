@@ -10,24 +10,10 @@ CREATE TABLE USERS
   avatar_url VARCHAR(255),
   created_at TIMESTAMP NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
+  phone VARCHAR(20),
+  country VARCHAR(50),
   PRIMARY KEY (user_id)
 );
-
-CREATE TABLE BOOKINGS
-(
-  booking_id INT NOT NULL,
-  booking_date DATE NOT NULL,
-  ticket_count INT NOT NULL,
-  status VARCHAR(50) NOT NULL,
-  contact_name VARCHAR(100) NOT NULL,
-  contact_email VARCHAR(150) NOT NULL,
-  created_at TIMESTAMP NOT NULL,
-  contact_phone VARCHAR(20),
-  user_id INT NOT NULL,
-  PRIMARY KEY (booking_id),
-  FOREIGN KEY (user_id) REFERENCES USERS(user_id)
-);
-
 
 CREATE TABLE CATEGORIES
 (
@@ -65,21 +51,55 @@ CREATE TABLE ATTRACTIONS
   full_description TEXT,
   location VARCHAR(255) NOT NULL,
   price DECIMAL(10,2) NOT NULL,
-
   difficulty_id INT NOT NULL,
-
   duration INT NOT NULL,
   target_audience VARCHAR(100) NOT NULL,
   avg_rating DECIMAL(3,2),
   review_count INT DEFAULT 0,
   main_image_url VARCHAR(255),
-
   category_id INT NOT NULL,
-
+  opening_hours VARCHAR(20),
+  last_updated TIMESTAMP DEFAULT NOW(),
   PRIMARY KEY (attraction_id),
-
   FOREIGN KEY (category_id) REFERENCES CATEGORIES(category_id),
   FOREIGN KEY (difficulty_id) REFERENCES DIFFICULTY_LEVELS(difficulty_id)
+);
+
+CREATE TABLE PAYMENT
+(
+  payment_id INT NOT NULL,
+  booking_id INT NOT NULL,
+  amount DOUBLE PRECISION NOT NULL CHECK (amount > 0),
+  PRIMARY KEY (payment_id),
+  UNIQUE (booking_id)
+);
+
+CREATE TABLE BOOKINGS
+(
+  booking_id INT NOT NULL,
+  booking_date DATE NOT NULL,
+  status VARCHAR(50) NOT NULL,
+  contact_name VARCHAR(100) NOT NULL,
+  contact_email VARCHAR(150) NOT NULL,
+  created_at TIMESTAMP NOT NULL,
+  contact_phone VARCHAR(20),
+  user_id INT NOT NULL,
+  total_price FLOAT,
+  payment_id INT,
+  quantity INT,
+  PRIMARY KEY (booking_id),
+  FOREIGN KEY (user_id) REFERENCES USERS(user_id)
+);
+
+CREATE TABLE TICKET
+(
+  ticket_id INT NOT NULL,
+  attraction_id INT NOT NULL,
+  price DOUBLE PRECISION NOT NULL CHECK (price >= 0),
+  valid_date DATE NOT NULL,
+  ticket_type CHARACTER VARYING(20) NOT NULL,
+  available_quantity INT CHECK (available_quantity >= 0),
+  PRIMARY KEY (ticket_id)
 );
 
 CREATE TABLE GALLERY_IMAGES
@@ -108,7 +128,7 @@ CREATE TABLE BOOKING_DETAILS
 (
   booking_id INT NOT NULL,
   attraction_id INT NOT NULL,
-  ticket_count INT NOT NULL,
+  quantity INT NOT NULL,
   PRIMARY KEY (booking_id, attraction_id),
   FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id),
   FOREIGN KEY (attraction_id) REFERENCES ATTRACTIONS(attraction_id)
