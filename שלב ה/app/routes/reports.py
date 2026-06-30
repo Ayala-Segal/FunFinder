@@ -8,7 +8,7 @@ reports_bp = Blueprint('reports', __name__)
 def _ctx():
     """Shared context for all report views (dropdowns)."""
     return dict(
-        users      = query("SELECT user_id, name FROM users ORDER BY name LIMIT 200"),
+        users      = query("SELECT user_id, name FROM users ORDER BY user_id DESC LIMIT 200"),
         categories = query("SELECT category_id, name FROM categories ORDER BY category_id"),
         bookings   = query("SELECT booking_id, status, booking_date FROM bookings ORDER BY booking_id DESC LIMIT 200"),
     )
@@ -176,12 +176,16 @@ def proc_sync():
         try:
             rows = query("""
                 SELECT attraction_id, name, avg_rating, review_count, last_updated
-                FROM   attractions ORDER BY last_updated DESC NULLS LAST LIMIT 20
+                FROM   attractions
+                WHERE  review_count > 0
+                ORDER BY avg_rating DESC NULLS LAST, review_count DESC LIMIT 20
             """)
         except Exception:
             rows = query("""
                 SELECT attraction_id, name, avg_rating, review_count
-                FROM   attractions ORDER BY avg_rating DESC NULLS LAST LIMIT 20
+                FROM   attractions
+                WHERE  review_count > 0
+                ORDER BY avg_rating DESC NULLS LAST LIMIT 20
             """)
         return render_template('reports/index.html', **_ctx(),
                                proc2_rows=rows, proc2_min=min_reviews, active='proc2')

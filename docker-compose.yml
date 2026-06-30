@@ -1,37 +1,57 @@
 services:
+
   db:
     image: postgres:latest
     container_name: PostgreSQL_DB
     restart: always
     environment:
-      POSTGRES_USER: ${DB_USER_SECRET}
-      POSTGRES_PASSWORD: ${DB_PASSWORD_SECRET}
-      POSTGRES_DB: ${DB_NAME_SECRET}
+      POSTGRES_USER: Ayelet
+      POSTGRES_PASSWORD: Ayelet1!
+      POSTGRES_DB: dbnew
     ports:
       - "5432:5432"
     volumes:
-      - ./script/create_tables.sql:/docker-entrypoint-initdb.d/1-create_tables.sql
-      
-      # תיקון המיפוי: אנחנו מצמידים את התיקייה מהמחשב לאותו שם בדיוק בדוקר
-      # הוספת :z עוזרת לפתור בעיות הרשאה במערכות מסוימות
-      - ./DataImportFiles:/DataImportFiles:z
-      - ./MockarooFiles:/MockarooFiles:z
-      
-      - postgres_data:/var/lib/postgresql
+      - ./init-db:/docker-entrypoint-initdb.d:z
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U Ayelet -d dbnew"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadminApp
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
     ports:
       - "8080:80"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - db
+
+  web:
+    build: ./שלב ה
+    container_name: FunFinder_Web
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME_SECRET: dbnew
+      DB_USER_SECRET: Ayelet
+      DB_PASSWORD_SECRET: Ayelet1!
+      SECRET_KEY: exploreease-stage5-secret-2024
+      ADMIN_EMAIL: admin@exploreease.com
+      ADMIN_PASSWORD: Admin1234!
+      ADMIN_NAME: Admin
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:

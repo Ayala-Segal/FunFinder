@@ -1,0 +1,6 @@
+__pycache__
+*.pyc
+*.pyo
+.env
+app/__pycache__
+app/routes/__pycache__

@@ -22,30 +22,34 @@
 
 ## 🚀 How to Run the Website (Phase 5)
 
-### Prerequisites
-- Python 3.10+
-- Docker Desktop — must be **running**
+### What you need to install
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) — **that's it. Nothing else.**
 
-### Step 1 — Start the database
-Open a terminal in the **root** of the project and run:
-```bash
-docker-compose up -d
-```
-This starts PostgreSQL on port 5432. You only need to do this once (or after a restart).
+---
 
-### Step 2 — Install Python dependencies
+### Step 1 — Download the project
+Download or clone this repository to your computer.
+
+### Step 2 — Open a terminal in the project folder
+Open a terminal (Command Prompt / PowerShell / Terminal) and navigate to the root folder of the project (where `docker-compose.yml` is located).
+
+### Step 3 — Run one command
 ```bash
-cd "שלב ה"
-pip install -r requirements.txt
+docker-compose up
 ```
 
-### Step 3 — Run the application
-```bash
-python run.py
-```
+Wait about **1–2 minutes** for everything to start. You will see log messages in the terminal — wait until you see `Running on http://0.0.0.0:5000`.
+
+> ⚠️ **First run only:** The database needs to initialize and load all data. This takes longer the first time (~2 minutes). Do not close the terminal.
 
 ### Step 4 — Open in browser
 Go to: **http://localhost:5000**
+
+### Step 5 — To stop the application
+Press `Ctrl + C` in the terminal, then run:
+```bash
+docker-compose down
+```
 
 ---
 
@@ -53,11 +57,27 @@ Go to: **http://localhost:5000**
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | `admin@exploreease.com` | `Admin1234!` |
-| Regular User | any email from the database | the value in the `password_hash` column |
+| **Admin** | `admin@exploreease.com` | `Admin1234!` |
+| **Regular User** | any email from the database | the value shown in the `password_hash` column |
 
-> **Admin** has access to the full management panel (CRUD for all tables, reports, and Phase 4 functions).  
-> **Regular User** can browse attractions, make bookings, and write reviews.
+> **Admin** has access to the full management panel: CRUD for all tables, SQL reports, and Phase 4 PL/pgSQL functions & procedures.
+> **Regular User** can browse attractions, make bookings, write reviews, and simulate payments.
+
+---
+
+### What runs automatically
+When you run `docker-compose up`, the following starts automatically:
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| **Web App** | http://localhost:5000 | The FunFinder / ExploreEase website |
+| **pgAdmin** | http://localhost:8080 | Database management UI |
+| **PostgreSQL** | port 5432 | The database (used internally) |
+
+The database is automatically initialized with:
+- All tables (Phase 1)
+- All data (~40,000 records)
+- Phase 4 objects: `booking_audit` table, 2 functions, 2 procedures, 2 triggers
 
 ---
 
