@@ -15,6 +15,8 @@
 
 - [Phase 2: SQL Queries, Constraints & Database Operations](#phase-2-sql-queries-constraints--database-operations)
 - [Phase 3: Complex Queries, Views, and Integration](#phase-3--complex-queries-views-and-integration)
+- [Phase 4: PL/pgSQL – Functions, Procedures & Triggers](#phase-4--plpgsql-functions-procedures--triggers)
+- [Phase 5: Web Application – ExploreEase](#phase-5--web-application-exploreease)
 
 ---
 
@@ -1345,3 +1347,362 @@ WHERE tc.constraint_type = 'FOREIGN KEY'
   AND tc.table_schema = 'public'
 ORDER BY kcu.table_name;
 ```
+
+---
+
+# Phase 4 – PL/pgSQL: Functions, Procedures & Triggers
+
+## Overview
+
+Phase 4 extends the FunFinder database by embedding complex business logic directly inside PostgreSQL using PL/pgSQL. The implementation includes 2 functions, 2 procedures, 2 triggers, and 2 anonymous main programs (DO blocks). Every object contains all required PL/pgSQL elements: explicit cursor, implicit cursor, REF cursor, DML statements, branching (IF/ELSIF/ELSE), loops (cursor loop, FOR, WHILE), exception handling, and record variables.
+
+---
+
+## Schema Changes – AlterTable.sql
+
+Run this file first, before any other Stage 4 file.
+
+### `booking_audit` table
+
+A central audit/log table consumed by both triggers and both functions.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| audit_id | SERIAL PK | Auto-generated identifier |
+| booking_id | INT | The booking that was changed |
+| user_id | INT | The user involved |
+| old_status / new_status | VARCHAR | Status before and after the change |
+| old_amount / new_amount | DOUBLE PRECISION | Price before and after |
+| change_type | VARCHAR | `INSERT` / `UPDATE` / `DELETE` |
+| change_time | TIMESTAMP | Timestamp of the change (default: NOW()) |
+| notes | TEXT | Free-text explanation |
+
+### Additional columns added
+
+- `total_bookings INT` added to **USERS** – a running counter of confirmed bookings per user, maintained automatically by Trigger 2.
+- `last_updated TIMESTAMP` added to **ATTRACTIONS** – timestamp of the last statistics refresh.
+
+---
+
+## Function 1 – `fn_apply_booking_discounts(p_user_id INT) → INT`
+
+### Purpose
+
+Receives a user ID, processes all pending bookings for that user, applies a four-tier discount/action policy, and purges stale cancelled bookings. Returns the number of bookings processed.
+
+### Business Logic
+
+**Section 1 – Implicit Cursor:** For every attraction the user has ever booked, recalculates `avg_rating` and `review_count` and updates the ATTRACTIONS table.
+
+**Section 2 – Explicit Cursor (four price tiers):**
+
+| Condition | Action |
+|-----------|--------|
+| `total_price = 0` | Recompute price from unit_price × quantity |
+| `total_price < 50` | Auto-cancel + write audit record |
+| `50 ≤ total_price < 300` | Confirm (`status = 'confirmed'`) |
+| `total_price ≥ 300` | Upgrade to VIP + apply 10% loyalty discount + write audit record |
+
+**Section 3 – WHILE Loop:** Purges cancelled bookings older than 90 days with no associated payment (deletes from BOOKING_DETAILS and BOOKINGS after logging to audit).
+
+### PL/pgSQL Elements
+
+| Element | Implementation |
+|---------|---------------|
+| Explicit Cursor | `c_pending refcursor` – OPEN / FETCH / CLOSE |
+| Implicit Cursor | `FOR r_attr IN SELECT ... LOOP` |
+| DML | UPDATE BOOKINGS, UPDATE ATTRACTIONS, INSERT booking_audit, DELETE BOOKING_DETAILS |
+| Branching | IF / ELSIF / ELSIF / ELSE (4 tiers) |
+| Loops | Cursor LOOP + FOR implicit + WHILE |
+| Exception | Named SQLSTATE P0001 (user not found) + WHEN OTHERS |
+| Records | `r_booking RECORD`, `r_attr RECORD` |
+
+---
+
+## Function 2 – `fn_attraction_revenue_report(p_category_id INT) → refcursor`
+
+### Purpose
+
+Receives a category ID. Restocks low-inventory tickets, refreshes attraction statistics, and returns a **named REF CURSOR** containing a revenue report for every attraction in the category.
+
+### Business Logic
+
+**Section 1 – Explicit Cursor:** Iterates over tickets with `available_quantity < 5`. Restock amount is determined by ticket type:
+
+| Ticket Type | Restock Qty |
+|-------------|-------------|
+| Adult | +20 |
+| Child | +30 |
+| Family | +15 |
+| Senior | +10 |
+
+**Section 2 – Implicit Cursor:** Refreshes `avg_rating` and `review_count` for every attraction in the category.
+
+**Section 3 – WHILE Loop:** Emergency restock to qty = 10 for any tickets still at zero.
+
+**Section 4 – REF CURSOR:** Opens a named cursor (`'attraction_revenue_cur'`) with a revenue summary (total_bookings, total_revenue, avg_rating, first/last booking dates) and returns it to the caller.
+
+### Key Design Point
+
+Because the function **returns a refcursor**, the caller (Main 2 / the web application) iterates the rows itself. This allows processing large result sets without loading everything into memory at once.
+
+---
+
+## Procedure 1 – `pr_complete_booking(IN booking_id, OUT total_amount, OUT status)`
+
+### Purpose
+
+Processes a booking end-to-end: checks ticket inventory for each attraction in the booking, deducts stock, and returns a final status and total price via OUT parameters.
+
+### Business Logic
+
+**Section 1 – Implicit Cursor:** Computes the expected total and refreshes attraction statistics.
+
+**Section 2 – Parameterised Explicit Cursor:** Iterates over every BOOKING_DETAILS row. Four stock scenarios:
+
+| Scenario | Action |
+|----------|--------|
+| No ticket record exists | Delete the line from BOOKING_DETAILS |
+| Stock = 0 (sold out) | Delete the line from BOOKING_DETAILS |
+| Partial stock | Fulfil only available quantity; deduct all remaining stock |
+| Full stock | Deduct ordered quantity; accumulate into total |
+
+**Section 3 – WHILE retry loop:** Writes the final status up to 3 times in case of transient contention.
+
+**Returned status:**
+- `total = 0` → `'cancelled'`
+- All lines fully fulfilled → `'confirmed'`
+- At least one partial/missing line → `'partial'`
+
+---
+
+## Procedure 2 – `pr_sync_attraction_stats(p_min_reviews INT)`
+
+### Purpose
+
+Bulk-refreshes statistics (avg_rating, review_count, revenue) for every attraction. Skips attractions that have fewer reviews than the given minimum floor.
+
+### Notable Design Elements
+
+**User-defined composite type** `t_attraction_stat` is declared explicitly:
+```sql
+CREATE TYPE t_attraction_stat AS (
+    attraction_id INT, attraction_name TEXT,
+    new_avg_rating NUMERIC(3,2), new_review_cnt INT,
+    new_revenue FLOAT, booking_cnt INT
+);
+```
+
+**Explicit Cursor:** Seeds zero-stat attractions (review_count IS NULL or 0).
+
+**Outer FOR loop** over difficulty levels drives the main processing.
+
+**Implicit Cursor (inner):** Computes statistics per attraction within each difficulty level.
+
+**Inner exception block:** If an attraction is below the review floor, raises SQLSTATE P0003, immediately catches it, logs a NOTICE, and uses `CONTINUE` to skip to the next attraction — without aborting the entire procedure.
+
+**WHILE retry:** Attempts the UPDATE up to 3 times.
+
+---
+
+## Trigger 1 – `trg_bookings_before_insert`
+
+**Type:** BEFORE INSERT ON BOOKINGS — fires before every new row enters the table.
+
+| Step | Logic |
+|------|-------|
+| 1 | Hard block: if `NEW.status = 'cancelled'` → RAISE EXCEPTION (direct insertion of a cancelled booking is forbidden) |
+| 2 | If `NEW.total_price` is NULL → compute it automatically from BOOKING_DETAILS × ATTRACTIONS.price and set `NEW.total_price` |
+| 3 | If the user registered within the last 30 days → apply a 15% welcome discount to `NEW.total_price` |
+| 4 | Insert a row into booking_audit |
+| 5 | `RETURN NEW` — passes the (possibly modified) row through to the table |
+
+---
+
+## Trigger 2 – `trg_bookings_after_update`
+
+**Type:** AFTER UPDATE ON BOOKINGS — fires after every update.
+
+| Condition | Action |
+|-----------|--------|
+| Status and price both unchanged | `RETURN NEW` immediately (no side-effects needed) |
+| Status transitions to `'completed'` | Insert (or upsert) a PAYMENT row; increment `USERS.total_bookings` by 1 |
+| Status transitions to `'cancelled'` from an active state | Restore `available_quantity` on all relevant TICKET rows |
+| Always | Insert a row into booking_audit capturing OLD and NEW values |
+
+---
+
+## Main Programs
+
+### Main1.sql
+
+Anonymous DO block demonstrating Function 1 and Procedure 1:
+
+- Calls `fn_apply_booking_discounts(1)` and prints how many bookings were processed (or the error code).
+- Calls `CALL pr_complete_booking(1, ...)` and prints the resulting status and total price.
+- Each call is wrapped in its own `BEGIN/EXCEPTION` block so a failure in one does not prevent the other.
+
+### Main2.sql
+
+Anonymous DO block demonstrating Function 2 and Procedure 2:
+
+- Calls `fn_attraction_revenue_report(1)`, fetches the returned refcursor in a LOOP, and prints each revenue row with RAISE NOTICE.
+- Calls `CALL pr_sync_attraction_stats(2)` and prints the completion notice.
+
+---
+
+---
+
+# Phase 5 – Web Application: ExploreEase
+
+## Overview
+
+Phase 5 builds a complete full-stack web application on top of the database created in previous phases. Regular users can browse attractions and make bookings; administrators manage all data and execute the Phase 4 PL/pgSQL objects directly from the interface.
+
+**Technology stack:**
+- **Backend:** Python 3.10+ · Flask · psycopg2
+- **Frontend:** Bootstrap 5.3 · Bootstrap Icons · Jinja2
+- **Database:** PostgreSQL (Docker container from Phase 3)
+
+---
+
+## Project Structure
+
+```
+שלב ה/
+├── run.py                  ← Entry point
+├── app/
+│   ├── __init__.py         ← Flask factory, blueprint registration
+│   ├── config.py           ← Reads .env configuration
+│   ├── db.py               ← Database layer (query, execute, refcursor helpers)
+│   ├── decorators.py       ← @login_required, @admin_required
+│   └── routes/
+│       ├── auth.py         ← Login / logout
+│       ├── home.py         ← Home page
+│       ├── attractions.py  ← Browse + Admin CRUD
+│       ├── bookings.py     ← Booking flow + payment + Admin CRUD
+│       ├── reviews.py      ← User reviews
+│       ├── reports.py      ← Phase 2 queries + Phase 4 functions/procedures
+│       └── admin.py        ← CRUD for all remaining tables
+├── templates/              ← HTML templates (Jinja2)
+└── static/                 ← CSS, JavaScript
+```
+
+---
+
+## Database Layer – db.py
+
+A custom abstraction layer over psycopg2, providing six helper functions:
+
+| Function | Purpose |
+|----------|---------|
+| `query(sql, params)` | SELECT — returns a list of dicts |
+| `query_one(sql, params)` | SELECT — returns a single row dict or None |
+| `execute(sql, params)` | INSERT / UPDATE / DELETE |
+| `call_procedure(name, params)` | Call a stored procedure (no result set) |
+| `call_function_scalar(name, params)` | Call a function returning a scalar value |
+| `call_function_refcursor(name, params)` | Call a function returning a refcursor — opens a transaction, fetches all rows |
+
+**SQL Injection prevention:** All parameters are passed as `%s` placeholders and never interpolated into the query string.
+
+**Connection management:** A `get_cursor()` context manager handles commit on success, rollback on exception, and always closes the connection.
+
+---
+
+## Authentication – auth.py
+
+Supports two user types:
+
+- **Admin:** Credentials stored in config; on success sets `session['is_admin'] = True`.
+- **Regular user:** Queries the USERS table and compares `password_hash`; on success stores `user_id`, `user_name`, `user_email` in the session.
+
+**Logout** clears the entire session.
+
+---
+
+## Access Control – decorators.py
+
+```python
+@login_required   # Checks session['user_id'] — redirects to /login if missing
+@admin_required   # Checks session['is_admin'] — returns 403 if False
+```
+
+Every route that requires authentication uses one of these decorators, preventing direct URL access by unauthorised users.
+
+---
+
+## Attractions Module – attractions.py
+
+### User-facing browse (`/attractions`)
+
+- **Filtering** by category, difficulty level, and free-text keyword search (`ILIKE` on name and location)
+- **Sorting** by `avg_rating` descending (highest-rated first)
+- Image fallback handled in the template when `main_image_url` is missing
+
+### Attraction detail page (`/attractions/<id>`)
+
+Displays: full attraction details, image gallery, last 10 reviews, available tickets with validity dates.
+
+### Admin CRUD (`/admin/attractions`)
+
+Full create / read / update / delete with search and pagination.
+
+---
+
+## Bookings Module – bookings.py
+
+### User booking flow
+
+| Step | Route | What happens |
+|------|-------|-------------|
+| 1 | `GET /book/<aid>` | Show form to choose quantity and date |
+| 2 | `POST /book/<aid>` | Insert into BOOKINGS (status='pending') + BOOKING_DETAILS → **`trg_bookings_before_insert` fires automatically** and calculates/adjusts the price |
+| 3 | `GET /payment/<bid>` | Show booking summary with final price |
+| 4 | `POST /payment/<bid>` | Insert into PAYMENT, set status='confirmed' → **`trg_bookings_after_update` fires automatically** and increments `USERS.total_bookings` |
+| 5 | `GET /my-bookings` | List all bookings for the logged-in user |
+
+**Security:** A user cannot access another user's payment page; already-confirmed bookings cannot be paid again.
+
+---
+
+## Reports Module – reports.py
+
+Accessible to admins only. Combines Phase 2 SQL queries with live execution of Phase 4 database objects:
+
+| Button | Call | Output displayed |
+|--------|------|-----------------|
+| Top-rated attractions | Inline SQL | Table of attractions with avg_rating ≥ 4 |
+| Above-average spenders | Inline SQL with subquery | Customers who spent above their month's average |
+| Apply Discounts | `call_function_scalar('fn_apply_booking_discounts', [uid])` | Bookings processed + updated booking list |
+| Revenue Report | `call_function_refcursor('fn_attraction_revenue_report', [cid])` | Revenue table fetched from the refcursor |
+| Complete Booking | `CALL pr_complete_booking(bid, NULL, NULL)` | Updated status and total price |
+| Sync Stats | `call_procedure('pr_sync_attraction_stats', [min])` | 20 most recently updated attractions |
+
+---
+
+## Pagination
+
+All admin list pages support pagination:
+
+```python
+page   = request.args.get('page', 1, type=int)
+offset = (page - 1) * 200
+# SQL: LIMIT 200 OFFSET %s
+has_next = len(rows) == 200   # if exactly 200 rows returned, a next page likely exists
+```
+
+---
+
+## Connection Between Phase 4 and Phase 5
+
+The key strength of the project is that the two phases are not isolated — the PL/pgSQL objects are active whenever data changes, whether through the UI or directly in SQL:
+
+| Action in the UI | What happens in the database |
+|-----------------|------------------------------|
+| User books an attraction | `trg_bookings_before_insert` fires — computes price, applies welcome discount |
+| User completes payment | `trg_bookings_after_update` fires — creates PAYMENT row, increments total_bookings |
+| Admin clicks Apply Discounts | `fn_apply_booking_discounts` runs — updates bookings, purges stale ones |
+| Admin clicks Revenue Report | `fn_attraction_revenue_report` runs — returns refcursor; app iterates and displays it |
+| Admin clicks Sync Stats | `pr_sync_attraction_stats` runs — refreshes all attraction statistics |
+
+This architecture ensures that the `booking_audit` table always reflects the true history of every booking, regardless of how the data was changed.
