@@ -214,8 +214,8 @@
               {% for a in proc2_rows %}
               <tr>
                 <td>{{ a.name }}</td>
-                <td>{{ a.avg_rating or '—' }}</td>
-                <td>{{ a.review_count or 0 }}</td>
+                <td>{{ a.avg_rating if a.avg_rating is not none else '—' }}</td>
+                <td>{{ a.review_count if a.review_count is not none else 0 }}</td>
               </tr>
               {% else %}
               <tr><td colspan="3" class="text-muted small">No data.</td></tr>
