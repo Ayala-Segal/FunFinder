@@ -61,8 +61,14 @@
 
         <div class="col-md-6">
           <label class="form-label fw-semibold">Target Audience <span class="text-danger">*</span></label>
-          <input name="target_audience" class="form-control" required
-                 value="{{ attraction.target_audience if attraction else '' }}"/>
+          <select name="target_audience" class="form-select" required>
+            {% for opt in ['All', 'Families', 'Groups', 'Individuals'] %}
+            <option value="{{ opt }}"
+              {{ 'selected' if attraction and attraction.target_audience == opt }}>
+              {{ opt }}
+            </option>
+            {% endfor %}
+          </select>
         </div>
 
         <div class="col-12">
