@@ -14,10 +14,11 @@ services:
       - ./init-db:/docker-entrypoint-initdb.d:z
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U Ayelet -d dbnew"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+      test: ["CMD-SHELL", "psql -U Ayelet -d dbnew -c 'SELECT 1 FROM attractions LIMIT 1' > /dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 20s
 
   pgadmin:
     image: dpage/pgadmin4
