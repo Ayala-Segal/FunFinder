@@ -20,6 +20,47 @@
 
 ---
 
+## 🚀 How to Run the Website (Phase 5)
+
+### Prerequisites
+- Python 3.10+
+- Docker Desktop — must be **running**
+
+### Step 1 — Start the database
+Open a terminal in the **root** of the project and run:
+```bash
+docker-compose up -d
+```
+This starts PostgreSQL on port 5432. You only need to do this once (or after a restart).
+
+### Step 2 — Install Python dependencies
+```bash
+cd "שלב ה"
+pip install -r requirements.txt
+```
+
+### Step 3 — Run the application
+```bash
+python run.py
+```
+
+### Step 4 — Open in browser
+Go to: **http://localhost:5000**
+
+---
+
+### Login Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | `admin@exploreease.com` | `Admin1234!` |
+| Regular User | any email from the database | the value in the `password_hash` column |
+
+> **Admin** has access to the full management panel (CRUD for all tables, reports, and Phase 4 functions).  
+> **Regular User** can browse attractions, make bookings, and write reviews.
+
+---
+
 ## Phase 1: Design and Build the Database
 
 ### Introduction
