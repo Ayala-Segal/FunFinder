@@ -67,10 +67,12 @@
       {% else %}
       <p class="text-muted small">No reviews yet. Be the first!</p>
       {% endfor %}
+      {% if not session.get('is_admin') %}
       <a href="{{ url_for('reviews.add_review', aid=a.attraction_id) }}"
          class="btn btn-outline-success btn-sm mt-2">
         <i class="bi bi-pencil"></i> Write a Review
       </a>
+      {% endif %}
     </div>
 
     <!-- Sidebar / Book -->

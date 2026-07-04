@@ -16,6 +16,10 @@ def _attractions():
 @reviews_bp.route('/reviews/add', methods=['GET', 'POST'])
 @login_required
 def add_review():
+    if session.get('is_admin'):
+        flash('Admins cannot post reviews. Log in as a regular user to write one.', 'warning')
+        return redirect(url_for('attractions.list_attractions'))
+
     attractions = _attractions()
     if request.method == 'POST':
         try:
