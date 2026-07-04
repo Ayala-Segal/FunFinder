@@ -26,12 +26,17 @@ def login():
             session['user_email']= ADMIN_EMAIL
             session['is_admin']  = True
             # Give the admin a real USERS row (id 0) so booking/review FKs succeed
-            # when browsing the site as a regular user.
-            execute("""
-                INSERT INTO users (user_id, name, email, created_at, password_hash)
-                VALUES (0, %s, %s, NOW(), %s)
-                ON CONFLICT (user_id) DO NOTHING
-            """, (ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD))
+            # when browsing the site as a regular user. ON CONFLICT DO NOTHING (with
+            # no target) skips on *any* constraint clash (id or email), not just the
+            # primary key, so a stray row can never turn login into a 500.
+            try:
+                execute("""
+                    INSERT INTO users (user_id, name, email, created_at, password_hash)
+                    VALUES (0, %s, %s, NOW(), %s)
+                    ON CONFLICT DO NOTHING
+                """, (ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD))
+            except Exception:
+                pass
             return redirect(url_for('auth.admin_choice'))
 
         # --- Regular user check (plain password_hash comparison) ---
