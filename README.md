@@ -1,75 +1,86 @@
-# FunFinder
 # 🎯 FunFinder – Attractions Management System
 
 ## Table of Contents
 
-* [Phase 1: Design and Build the Database](#phase-1-design-and-build-the-database)
+- [Phase 1: Design and Build the Database](#phase-1-design-and-build-the-database)
+  - Introduction
+  - Purpose of the Database
+  - Potential Use Cases
+  - System Overview
+  - ERD (Entity-Relationship Diagram)
+  - DSD (Data Structure Diagram)
+  - SQL Scripts
+  - Data
+  - Backup
 
-  * [Introduction](#introduction)
-  * [ERD (Entity-Relationship Diagram)](#erd-entity-relationship-diagram)
-  * [DSD (Data Structure Diagram)](#dsd-data-structure-diagram)
-  * [SQL Scripts](#sql-scripts)
-  * [Data](#data)
-  * [Backup](#backup)
 ---
 
 ## Phase 1: Design and Build the Database
 
 ### Introduction
 
-The **FunFinder system** is designed to manage attractions, bookings, and user interactions in a structured and efficient way.
+The **FunFinder system** is designed to manage attractions, bookings, and user interactions in a structured and efficient way.  
 It provides a complete database solution for handling attractions, reservations, reviews, and related content.
 
-#### Purpose of the Database
+### Purpose of the Database
 
-* Managing attractions with categories, pricing, and descriptions
-* Handling bookings and ticket management
-* Tracking users and their activity
-* Managing reviews and ratings
-* Storing images for each attraction
+- Managing attractions with categories, pricing, and descriptions  
+- Handling bookings and ticket management  
+- Tracking users and their activity  
+- Managing reviews and ratings  
+- Storing images for each attraction  
 
-#### Potential Use Cases
+### Potential Use Cases
 
-* Users can browse attractions and book tickets
-* Administrators manage attractions and categories
-* The system analyzes popularity and ratings
-* Businesses can present and manage their attractions
+- Users can browse attractions and book tickets  
+- Administrators manage attractions and categories  
+- The system analyzes popularity and ratings  
+- Businesses can present and manage their attractions  
 
 ---
+
 ## 🚀 AI Studio Preview
 
-📌 View the system prototype and AI design:
-[Open AI Studio Project](https://ai.studio/apps/5c3de8b2-1857-4c0e-964f-efd5e41495a2)
+📌 View the system prototype and AI design:  
+https://ai.studio/apps/5c3de8b2-1857-4c0e-964f-efd5e41495a2
 
 ---
+
 ## 🖼️ System Overview (Application View)
 
-This section presents the main screens of the system and demonstrates how users interact with the application in practice.
+This section presents the main screens of the system and demonstrates how users interact with the application.
 
 ### 🏠 Home Page
-The main landing page that provides general navigation and overview of attractions.
-![Home 1](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/home1.png)
-![Home 2](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/home2.png)
-![Home 3](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/home3.png)
+
+The main landing page provides navigation and a general overview of available attractions.
+
+![Home 1](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/home1.png)
+![Home 2](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/home2.png)
+![Home 3](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/home3.png)
 
 ---
 
 ### 🎟️ Attractions Page
-Displays all available attractions with details and filtering options.
-![Attractions](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/attractions.png)
+
+Displays all available attractions with filtering, search options, and detailed information.
+
+![Attractions](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/attractions.png)
 
 ---
 
 ### 🔐 Login Page
-User authentication screen for system access.
-![Login](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/connection.png)
+
+User authentication screen for secure system access.
+
+![Login](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/connection.png)
 
 ---
 
 ### 🛒 Orders Page
-Shows user bookings and order history.
-![Orders](https://github.com/Ayala-Segal/FunFinder/blob/main/images%20view/order.png)
 
+Displays user booking history and order management.
+
+![Orders](https://github.com/Ayala-Segal/FunFinder/blob/main/imagesView/order.png)
 ---
 
 ### ERD (Entity-Relationship Diagram)
@@ -135,5 +146,3 @@ Used for generating large-scale and dynamic datasets.
 
 -   backups files are kept with the date and hour of the backup:  
 📂 [View Backups Folder](https://github.com/Ayala-Segal/FunFinder/tree/main/backup)
----
-
