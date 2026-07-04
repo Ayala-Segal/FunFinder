@@ -45,10 +45,12 @@ Open your browser at **http://localhost:5000**
 
 ## Login Credentials
 
-| Role  | Email                    | Password    |
-|-------|--------------------------|-------------|
-| Admin | admin@exploreease.com    | Admin1234!  |
-| User  | (any user from DB)       | (password_hash value) |
+| Role           | Email                 | Password    |
+|----------------|-----------------------|-------------|
+| Admin          | admin@exploreease.com | Admin1234!  |
+| User (Guest)   | user1@example.com     | Pwd000001   |
+
+> There is no self-registration page. Most seeded users have bcrypt-hashed passwords (unusable for login, since login compares plain text). The Guest account above is a seeded user with a known plain-text password, kept specifically for testing the regular-user flow. Admins can create additional regular users from `Admin → Users → Add`.
 
 ## Features
 

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from app.db import query, query_one, execute
+from app.db import query, query_one, execute, delete_attraction_cascade, delete_user_cascade
 from app.decorators import admin_required
 
 admin_bp = Blueprint('admin', __name__)
@@ -112,7 +112,7 @@ def users_edit(uid):
 @admin_required
 def users_delete(uid):
     try:
-        execute("DELETE FROM users WHERE user_id = %s", (uid,))
+        delete_user_cascade(uid)
         flash('User deleted.', 'success')
     except Exception as e:
         flash(f'Cannot delete: {e}', 'danger')
@@ -166,6 +166,8 @@ def categories_edit(cid):
 @admin_required
 def categories_delete(cid):
     try:
+        for row in query("SELECT attraction_id FROM attractions WHERE category_id = %s", (cid,)):
+            delete_attraction_cascade(row['attraction_id'])
         execute("DELETE FROM categories WHERE category_id = %s", (cid,))
         flash('Deleted.', 'success')
     except Exception as e:
@@ -220,6 +222,8 @@ def difficulties_edit(did):
 @admin_required
 def difficulties_delete(did):
     try:
+        for row in query("SELECT attraction_id FROM attractions WHERE difficulty_id = %s", (did,)):
+            delete_attraction_cascade(row['attraction_id'])
         execute("DELETE FROM difficulty_levels WHERE difficulty_id = %s", (did,))
         flash('Deleted.', 'success')
     except Exception as e:

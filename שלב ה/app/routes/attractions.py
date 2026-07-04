@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from app.db import query, query_one, execute
+from app.db import query, query_one, execute, delete_attraction_cascade
 from app.decorators import login_required, admin_required
 
 attractions_bp = Blueprint('attractions', __name__)
@@ -212,7 +212,7 @@ def admin_edit(aid):
 @admin_required
 def admin_delete(aid):
     try:
-        execute("DELETE FROM attractions WHERE attraction_id = %s", (aid,))
+        delete_attraction_cascade(aid)
         flash('Attraction deleted.', 'success')
     except Exception as e:
         flash(f'Cannot delete: {e}', 'danger')

@@ -64,10 +64,11 @@ docker-compose down
 | Role | Email | Password |
 |------|-------|----------|
 | **Admin** | `admin@exploreease.com` | `Admin1234!` |
-| **Regular User** | Register a new account from the login page | your chosen password |
+| **Regular User (Guest)** | `user1@example.com` | `Pwd000001` |
 
 > **Admin** has access to the full management panel: CRUD for all tables, SQL reports, and Phase 4 PL/pgSQL functions & procedures.  
-> **Regular User** can browse attractions, make bookings, write reviews, and simulate payments.
+> **Regular User** can browse attractions, make bookings, write reviews, and simulate payments.  
+> There is no self-registration page — new regular users are created by the Admin from the management panel (`Admin → Users → Add`). Use the Guest credentials above to test the regular-user flow.
 
 ---
 
@@ -1783,6 +1784,15 @@ This architecture ensures that the `booking_audit` table always reflects the tru
 
 > **To run the application**, see the [How to Run the Website](#-how-to-run-the-website-phase-5) section at the top of this README.  
 > A single `docker-compose up` command starts everything — no manual Python setup is required.
+
+### 📸 Application Screenshots
+
+![Home Page](https://github.com/Ayala-Segal/FunFinder/blob/main/%D7%A9%D7%9C%D7%91%20%D7%94/screenshots/APP_PIC1.png)
+![Admin Choice](https://github.com/Ayala-Segal/FunFinder/blob/main/%D7%A9%D7%9C%D7%91%20%D7%94/screenshots/APP_PIC2.png)
+![Admin Dashboard](https://github.com/Ayala-Segal/FunFinder/blob/main/%D7%A9%D7%9C%D7%91%20%D7%94/screenshots/APP_PIC3.png)
+![Login Page](https://github.com/Ayala-Segal/FunFinder/blob/main/%D7%A9%D7%9C%D7%91%20%D7%94/screenshots/APP_PIC4.png)
+
+---
 
 ### Stack
 - **Backend**: Python 3.10+ · Flask · psycopg2

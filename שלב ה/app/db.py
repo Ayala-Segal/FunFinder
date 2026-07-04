@@ -80,3 +80,27 @@ def call_function_scalar(func_name, params=None):
         cur.execute(f"SELECT {func_name}({placeholders}) AS result", params or [])
         row = cur.fetchone()
         return row['result'] if row else None
+
+
+def delete_attraction_cascade(attraction_id):
+    """Delete an attraction together with every row that references it via FK."""
+    execute("DELETE FROM booking_details WHERE attraction_id = %s", (attraction_id,))
+    execute("DELETE FROM gallery_images  WHERE attraction_id = %s", (attraction_id,))
+    execute("DELETE FROM reviews         WHERE attraction_id = %s", (attraction_id,))
+    execute("DELETE FROM ticket          WHERE attraction_id = %s", (attraction_id,))
+    execute("DELETE FROM attractions     WHERE attraction_id = %s", (attraction_id,))
+
+
+def delete_booking_cascade(booking_id):
+    """Delete a booking together with its booking_details and payment rows."""
+    execute("DELETE FROM booking_details WHERE booking_id = %s", (booking_id,))
+    execute("DELETE FROM payment         WHERE booking_id = %s", (booking_id,))
+    execute("DELETE FROM bookings        WHERE booking_id = %s", (booking_id,))
+
+
+def delete_user_cascade(user_id):
+    """Delete a user together with their reviews and bookings (and the bookings' own dependents)."""
+    execute("DELETE FROM reviews WHERE user_id = %s", (user_id,))
+    for row in query("SELECT booking_id FROM bookings WHERE user_id = %s", (user_id,)):
+        delete_booking_cascade(row['booking_id'])
+    execute("DELETE FROM users WHERE user_id = %s", (user_id,))
