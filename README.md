@@ -12,7 +12,6 @@
   - SQL Scripts
   - Data
   - Backup
-
 - [Phase 2: SQL Queries, Constraints & Database Operations](#phase-2-sql-queries-constraints--database-operations)
 - [Phase 3: Complex Queries, Views, and Integration](#phase-3--complex-queries-views-and-integration)
 
@@ -399,7 +398,6 @@ AND a.difficulty_id = (
 * Subqueries are simpler to write but may be less optimized in complex scenarios.
 
 ---
-````
 ##### Query 4 – Most Popular Attraction in a Category
 
 **Description**
