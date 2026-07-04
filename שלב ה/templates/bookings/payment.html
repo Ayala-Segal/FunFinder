@@ -97,7 +97,21 @@ function validateCard() {
   const cvv  = document.querySelector('input[placeholder="•••"]').value;
   const name = document.querySelector('input[placeholder="Full name"]').value.trim();
   if (card.length < 16) { alert('Please enter a valid 16-digit card number.'); return false; }
-  if (exp.replace(/\D/g,'').length < 4) { alert('Please enter the expiry date.'); return false; }
+
+  const expDigits = exp.replace(/\D/g,'');
+  if (expDigits.length < 4) { alert('Please enter the expiry date.'); return false; }
+  const expMonth = parseInt(expDigits.slice(0, 2), 10);
+  const expYear  = parseInt(expDigits.slice(2, 4), 10);
+  if (expMonth < 1 || expMonth > 12) {
+    alert('Please enter a valid expiry month (01-12).'); return false;
+  }
+  const now = new Date();
+  const currentYear  = now.getFullYear() % 100;
+  const currentMonth = now.getMonth() + 1;
+  if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+    alert('This card has expired. Please enter a valid expiry date.'); return false;
+  }
+
   if (cvv.length < 3)  { alert('Please enter the CVV.'); return false; }
   if (!name)           { alert('Please enter the name on the card.'); return false; }
   return true;

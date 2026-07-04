@@ -11,16 +11,13 @@
     <form method="post">
       <div class="mb-3">
         <label class="form-label fw-semibold">Attraction</label>
-        <select name="attraction_id" class="form-select" required>
-          <option value="">Select an attraction…</option>
-          {% for a in attractions %}
-          <option value="{{ a.attraction_id }}"
-            {{ 'selected' if (review and review.attraction_id==a.attraction_id)
-                          or (selected_aid and selected_aid==a.attraction_id) }}>
-            {{ a.name }}
-          </option>
-          {% endfor %}
-        </select>
+        <div class="position-relative">
+          <input type="text" id="attractionSearch" class="form-control" autocomplete="off"
+                 placeholder="Start typing an attraction name…">
+          <input type="hidden" name="attraction_id" id="attractionId">
+          <div id="attractionOptions" class="list-group position-absolute w-100 shadow"
+               style="z-index:1050; max-height:220px; overflow-y:auto; display:none; top:100%;"></div>
+        </div>
       </div>
       <div class="mb-3">
         <label class="form-label fw-semibold">Rating</label>
@@ -48,4 +45,59 @@
     </form>
   </div>
 </div>
+
+<script>
+const ATTRACTIONS = {{ attractions | tojson }};
+const selectedAid = {{ (selected_aid or '') | tojson }};
+
+const searchInput = document.getElementById('attractionSearch');
+const idInput      = document.getElementById('attractionId');
+const optionsBox   = document.getElementById('attractionOptions');
+
+function renderOptions(list) {
+  if (!list.length) { optionsBox.style.display = 'none'; optionsBox.innerHTML = ''; return; }
+  optionsBox.innerHTML = list.slice(0, 20).map(a =>
+    `<button type="button" class="list-group-item list-group-item-action" data-id="${a.attraction_id}">${a.name}</button>`
+  ).join('');
+  optionsBox.style.display = 'block';
+}
+
+searchInput.addEventListener('input', () => {
+  idInput.value = '';
+  const term = searchInput.value.trim().toLowerCase();
+  renderOptions(term ? ATTRACTIONS.filter(a => a.name.toLowerCase().includes(term)) : ATTRACTIONS);
+});
+
+searchInput.addEventListener('focus', () => {
+  renderOptions(searchInput.value.trim()
+    ? ATTRACTIONS.filter(a => a.name.toLowerCase().includes(searchInput.value.trim().toLowerCase()))
+    : ATTRACTIONS);
+});
+
+optionsBox.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-id]');
+  if (!btn) return;
+  idInput.value = btn.dataset.id;
+  searchInput.value = btn.textContent;
+  renderOptions([]);
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#attractionSearch') && !e.target.closest('#attractionOptions')) {
+    renderOptions([]);
+  }
+});
+
+if (selectedAid) {
+  const match = ATTRACTIONS.find(a => a.attraction_id === selectedAid);
+  if (match) { searchInput.value = match.name; idInput.value = match.attraction_id; }
+}
+
+document.querySelector('form').addEventListener('submit', (e) => {
+  if (!idInput.value) {
+    e.preventDefault();
+    alert('Please select an attraction from the list.');
+  }
+});
+</script>
 {% endblock %}

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from app.config import ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME
-from app.db import query_one
+from app.db import query_one, execute
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -25,6 +25,13 @@ def login():
             session['user_name'] = ADMIN_NAME
             session['user_email']= ADMIN_EMAIL
             session['is_admin']  = True
+            # Give the admin a real USERS row (id 0) so booking/review FKs succeed
+            # when browsing the site as a regular user.
+            execute("""
+                INSERT INTO users (user_id, name, email, created_at, password_hash)
+                VALUES (0, %s, %s, NOW(), %s)
+                ON CONFLICT (user_id) DO NOTHING
+            """, (ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD))
             return redirect(url_for('auth.admin_choice'))
 
         # --- Regular user check (plain password_hash comparison) ---
