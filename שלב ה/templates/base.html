@@ -24,8 +24,10 @@
       <ul class="navbar-nav me-auto">
         <li class="nav-item"><a class="nav-link" href="{{ url_for('home.index') }}">Home</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('attractions.list_attractions') }}">Attractions</a></li>
+        {% if not session.get('is_admin') %}
         <li class="nav-item"><a class="nav-link" href="{{ url_for('bookings.my_bookings') }}">My Bookings</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('reviews.add_review') }}">Write a Review</a></li>
+        {% endif %}
       </ul>
       <ul class="navbar-nav ms-auto align-items-center gap-2">
         {% if session.get('is_admin') %}
