@@ -92,8 +92,13 @@ def register():
             VALUES (%s, %s, %s, NOW(), %s, %s, %s)
         """, (max_id['nid'], name, email, password, phone, country))
 
-        flash('Account created! You can now sign in.', 'success')
-        return redirect(url_for('auth.login'))
+        session.clear()
+        session['user_id']   = max_id['nid']
+        session['user_name'] = name
+        session['user_email']= email
+        session['is_admin']  = False
+        flash(f'Welcome to ExploreEase, {name}!', 'success')
+        return redirect(url_for('home.index'))
 
     return render_template('auth/register.html', name='', email='', phone='', country='')
 
