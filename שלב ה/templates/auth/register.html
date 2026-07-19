@@ -3,29 +3,38 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>ExploreEase — Sign In</title>
+  <title>ExploreEase — Register</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
 </head>
 <body class="login-page">
 
-
 <div class="container d-flex justify-content-center align-items-center" style="min-height:85vh;">
   <div class="login-card">
     <div class="text-center mb-4">
       <div class="login-avatar mx-auto mb-3">
-        <i class="bi bi-person-fill text-white fs-3"></i>
+        <i class="bi bi-person-plus-fill text-white fs-3"></i>
       </div>
-      <h3 class="fw-bold">Welcome Back</h3>
-      <p class="text-muted small">Sign in to manage your bookings</p>
+      <h3 class="fw-bold">Create Your Account</h3>
+      <p class="text-muted small">Join ExploreEase to book attractions and write reviews</p>
     </div>
 
     {% for cat, msg in get_flashed_messages(with_categories=true) %}
     <div class="alert alert-{{ cat }} py-2 small">{{ msg }}</div>
     {% endfor %}
 
-    <form method="POST" action="{{ url_for('auth.login') }}">
+    <form method="POST" action="{{ url_for('auth.register') }}">
+      <div class="mb-3">
+        <label class="form-label small fw-semibold">Full Name</label>
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0">
+            <i class="bi bi-person text-muted"></i>
+          </span>
+          <input type="text" name="name" class="form-control border-start-0"
+                 placeholder="Jane Doe" value="{{ name }}" required/>
+        </div>
+      </div>
       <div class="mb-3">
         <label class="form-label small fw-semibold">Email Address</label>
         <div class="input-group">
@@ -33,10 +42,10 @@
             <i class="bi bi-envelope text-muted"></i>
           </span>
           <input type="email" name="email" class="form-control border-start-0"
-                 placeholder="john@example.com" required/>
+                 placeholder="john@example.com" value="{{ email }}" required/>
         </div>
       </div>
-      <div class="mb-4">
+      <div class="mb-3">
         <label class="form-label small fw-semibold">Password</label>
         <div class="input-group">
           <span class="input-group-text bg-white border-end-0">
@@ -46,20 +55,25 @@
                  placeholder="••••••••" required/>
         </div>
       </div>
+      <div class="row g-2 mb-4">
+        <div class="col-6">
+          <label class="form-label small fw-semibold">Phone <span class="text-muted">(optional)</span></label>
+          <input type="text" name="phone" class="form-control" placeholder="050-0000000" value="{{ phone }}"/>
+        </div>
+        <div class="col-6">
+          <label class="form-label small fw-semibold">Country <span class="text-muted">(optional)</span></label>
+          <input type="text" name="country" class="form-control" placeholder="Israel" value="{{ country }}"/>
+        </div>
+      </div>
       <button type="submit" class="btn btn-ee w-100 py-2">
-        Sign In <i class="bi bi-arrow-right"></i>
+        Create Account <i class="bi bi-arrow-right"></i>
       </button>
     </form>
 
     <div class="text-center mt-3">
       <small class="text-muted">
-        New here? <a href="{{ url_for('auth.register') }}">Create an account</a>
-      </small>
-    </div>
-    <div class="text-center mt-2">
-      <small class="text-muted">
-        <i class="bi bi-shield-lock me-1"></i>
-        Admin: use your admin credentials to access the management panel
+        Already have an account?
+        <a href="{{ url_for('auth.login') }}">Sign in</a>
       </small>
     </div>
   </div>

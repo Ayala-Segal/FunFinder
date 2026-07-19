@@ -67,8 +67,11 @@ docker-compose down
 | **Regular User (Guest)** | `user1@example.com` | `Pwd000001` |
 
 > **Admin** has access to the full management panel: CRUD for all tables, SQL reports, and Phase 4 PL/pgSQL functions & procedures.  
-> **Regular User** can browse attractions, make bookings, write reviews, and simulate payments.  
-> There is no self-registration page — new regular users are created by the Admin from the management panel (`Admin → Users → Add`). Use the Guest credentials above to test the regular-user flow.
+> **Regular User** can browse attractions, make bookings, write reviews, and simulate payments. New regular users can also self-register from the **"Create an account"** link on the login page.
+
+> ⚠️ **Type only the values shown in the table above** into the login form (e.g. Email = `admin@exploreease.com`, Password = `Admin1234!`). Do **not** copy a whole line from a `.env` or `docker-compose.yml` file — those look like `ADMIN_EMAIL=admin@exploreease.com`, and the `ADMIN_EMAIL=` part is just the variable name, not part of the email address.
+
+> 🔎 **Where is the admin account defined?** It is **not** a row in the `USERS` table. The admin email/password are environment variables (`ADMIN_EMAIL`, `ADMIN_PASSWORD` in `docker-compose.yml`, with defaults in `שלב ה/app/config.py`) checked directly in `שלב ה/app/routes/auth.py`. On first admin login a matching row **is** created in `USERS` (id `0`) — but only as a side effect, so bookings/reviews have a valid user to reference. It is not what login checks against.
 
 ---
 
